@@ -18,4 +18,6 @@ type GoogleCloudStorage struct {
 	Client *storage.Client
 	// EnableDebug enables debug logging.
 	EnableDebug bool
+	// PublicRead enables public read access to uploaded files.
+	PublicRead bool
 }

@@ -105,5 +105,6 @@ func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
 		DefaultTimeout:  g.DefaultTimeout,
 		Client:          client,
 		EnableDebug:     g.EnableDebug,
+		PublicRead:      g.PublicRead,
 	}, nil
 }

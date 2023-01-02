@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"cloud.google.com/go/storage"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/types"
 )
@@ -25,16 +26,13 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string) (types.UploadedFi
 		ctx, cancel = context.WithTimeout(ctx, time.Duration(g.DefaultTimeout)*time.Second)
 		defer cancel()
 	}
-
 	// verify that file exists
-	fileInfo, err := os.Stat(path)
-	if os.IsNotExist(err) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return types.UploadedFile{}, &errors.BifrostError{
 			Err:       fmt.Errorf("file does not exist: %s", path),
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
-
 	// open file
 	file, err := os.Open(path)
 	if err != nil {
@@ -43,8 +41,8 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string) (types.UploadedFi
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
+	// close file
 	defer file.Close()
-
 	// Upload file to Google Cloud Storage
 	obj := g.Client.Bucket(g.DefaultBucket).Object(filename)
 	wc := obj.NewWriter(ctx)
@@ -54,18 +52,32 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string) (types.UploadedFi
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
+	// close writer
 	if err := wc.Close(); err != nil {
 		return types.UploadedFile{}, &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
-
+	// set public read permissions
+	if g.PublicRead {
+		if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
+			return types.UploadedFile{}, &errors.BifrostError{
+				Err:       err,
+				ErrorCode: errors.ErrFileOperationFailed,
+			}
+		}
+	}
+	// get object attributes
+	objAttrs, _ := obj.Attrs(ctx)
 	return types.UploadedFile{
-		Name:     filename,
-		Path:     path,
-		Size:     fileInfo.Size(),
-		Location: fmt.Sprintf("https://storage.googleapis.com/%s/%s", g.DefaultBucket, filename),
+		Name:    objAttrs.Name,
+		Bucket:  objAttrs.Bucket,
+		Path:    path,
+		Size:    objAttrs.Size,
+		URL:     objAttrs.MediaLink,
+		Preview: fmt.Sprintf("https://storage.googleapis.com/%s/%s", objAttrs.Bucket, objAttrs.Name),
+		Object:  obj,
 	}, nil
 }
 
