@@ -19,16 +19,16 @@ const (
 	bridgeConfigType = "BridgeConfig"
 )
 
-// Error constants
+// Error constants.
 const (
 	// ErrBadRequest is returned when something fails due to client error.
-	BadRequest = 400
+	ErrBadRequest = "bad request"
 
 	// ErrUnauthorized is returned when something fails due to client not being authorized.
-	Unauthorized = 401
+	ErrUnauthorized = "unauthorized"
 
 	// ErrInvalidConfig is returned when the config is invalid.
-	ErrInvalidConfig = "invalid BridgeConfig"
+	ErrInvalidConfig = "invalid config"
 
 	// ErrInvalidBucket is returned when the bucket is invalid.
 	ErrInvalidBucket = "invalid bucket"
@@ -38,4 +38,7 @@ const (
 
 	// ErrInvalidCredentials is returned when the authentication credentials are invalid.
 	ErrInvalidCredentials = "invalid credentials"
+
+	// ErrFileOperationFailed is returned when a file operation fails.
+	ErrFileOperationFailed = "file operation failed"
 )
