@@ -16,7 +16,7 @@ UploadFile uploads a file to Google Cloud Storage and returns an error if one oc
 
 Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (g *GoogleCloudStorage) UploadFile(path, filename string) error {
+func (g *GoogleCloudStorage) UploadFile(path, filename string) (types.UploadedFile, error) {
 	// create context and add timeout if default timeout is set
 	var ctx context.Context
 	var cancel context.CancelFunc
@@ -27,8 +27,9 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string) error {
 	}
 
 	// verify that file exists
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return &errors.BifrostError{
+	fileInfo, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return types.UploadedFile{}, &errors.BifrostError{
 			Err:       fmt.Errorf("file does not exist: %s", path),
 			ErrorCode: errors.ErrBadRequest,
 		}
@@ -37,23 +38,35 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string) error {
 	// open file
 	file, err := os.Open(path)
 	if err != nil {
-		return &errors.BifrostError{
+		return types.UploadedFile{}, &errors.BifrostError{
 			Err:       err,
-			ErrorCode: errors.ErrBadRequest,
+			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
 	defer file.Close()
 
 	// Upload file to Google Cloud Storage
-	wc := g.Client.Bucket(g.DefaultBucket).Object(filename).NewWriter(ctx)
+	obj := g.Client.Bucket(g.DefaultBucket).Object(filename)
+	wc := obj.NewWriter(ctx)
 	if _, err := io.Copy(wc, file); err != nil {
-		return fmt.Errorf("io.Copy: %v", err)
+		return types.UploadedFile{}, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrFileOperationFailed,
+		}
 	}
 	if err := wc.Close(); err != nil {
-		return fmt.Errorf("Writer.Close: %v", err)
+		return types.UploadedFile{}, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrFileOperationFailed,
+		}
 	}
 
-	return nil
+	return types.UploadedFile{
+		Name:     filename,
+		Path:     path,
+		Size:     fileInfo.Size(),
+		Location: fmt.Sprintf("https://storage.googleapis.com/%s/%s", g.DefaultBucket, filename),
+	}, nil
 }
 
 /*

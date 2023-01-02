@@ -6,7 +6,7 @@ type UploadedFile struct {
 	Name string
 	// Local path is the path to the file.
 	Path string
-	// Size is the size of the file.
+	// Size is the size of the file in bytes.
 	Size int64
 	// Location is the location of the file in the cloud.
 	Location string
