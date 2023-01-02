@@ -11,6 +11,7 @@ import (
 	"github.com/opensaucerer/bifrost/errors"
 	"github.com/opensaucerer/bifrost/gcs"
 	"google.golang.org/api/option"
+	"google.golang.org/appengine/log"
 )
 
 // NewRainbowBridge returns a new Rainbow Bridge for shipping files to your specified cloud storage service.
@@ -33,7 +34,7 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 	}
 
 	// verify that the config struct is of valid type
-	if t.Elem().Name() != BridgeConfigType {
+	if t.Elem().Name() != bridgeConfigType {
 		return nil, &errors.BifrostError{
 			Err:  fmt.Errorf(errors.ErrInvalidConfig),
 			Code: errors.BadRequest,
@@ -61,7 +62,8 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 		// some provider might not require a bucket
 		// Just log a warning
 		if bc.EnableDebug {
-			fmt.Println(errors.ErrInvalidBucket)
+			// TODO: create a logger
+			log.Warningf(context.Background(), "No bucket specified for provider %s. This might cause errors or require you to specify a bucket for each operation.", bc.Provider)
 		}
 	}
 
@@ -70,7 +72,7 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 	// case "aws":
 	// 	return NewAmazonWebServices(bc), nil
 	case "gcs":
-		return NewGoogleCloudStorage(bc)
+		return newGoogleCloudStorage(bc)
 	default:
 		return nil, &errors.BifrostError{
 			Err:  fmt.Errorf(errors.ErrInvalidProvider),
@@ -80,8 +82,8 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 
 }
 
-// NewGoogleCloudStorage returns a new client for Google Cloud Storage.
-func NewGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
+// newGoogleCloudStorage returns a new client for Google Cloud Storage.
+func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
 	// first attempt to authenticate with credentials file
 	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(g.CredentialsFile))
 	if err != nil {

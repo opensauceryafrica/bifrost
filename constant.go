@@ -14,5 +14,5 @@ const (
 	GoogleCloudStorage = "gcs"
 
 	// BridgeConfigType is the type of the bridge configuration
-	BridgeConfigType = "BridgeConfig"
+	bridgeConfigType = "BridgeConfig"
 )
