@@ -10,6 +10,7 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/opensaucerer/bifrost/gcs"
+	"github.com/opensaucerer/bifrost/s3"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"google.golang.org/api/option"
 )
@@ -69,8 +70,8 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 
 	// Create a new bridge based on the provider
 	switch bc.Provider {
-	// case "aws":
-	// 	return NewAmazonWebServices(bc), nil
+	case "aws":
+		return newAmazonWebServices(bc)
 	case "gcs":
 		return newGoogleCloudStorage(bc)
 	default:
@@ -106,5 +107,17 @@ func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
 		Client:          client,
 		EnableDebug:     g.EnableDebug,
 		PublicRead:      g.PublicRead,
+	}, nil
+}
+
+// newGoogleCloudStorage returns a new client for AWS S3
+func newAmazonWebServices(g *BridgeConfig) (rainbowBridge, error) {
+	return &s3.SimpleStorageService{
+		Provider:        providers[strings.ToLower(g.Provider)],
+		DefaultBucket:   g.DefaultBucket,
+		Region: g.Region,
+		PublicRead: g.PublicRead,
+		SecretKey: g.SecretKey,
+		AccessKey: g.AccessKey,
 	}, nil
 }

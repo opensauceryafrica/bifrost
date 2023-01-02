@@ -18,4 +18,10 @@ type SimpleStorageService struct {
 	DefaultTimeout int64
 	// Client is the S3 client
 	Client *storage.Client
+	// PublicRead enables public read access to uploaded files.
+	PublicRead bool
+	// SecretKey is the secret key for IAM authentication.
+	SecretKey string
+	// AccessKey is the access key for IAM authentication.
+	AccessKey string
 }
