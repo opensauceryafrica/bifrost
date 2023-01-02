@@ -14,7 +14,7 @@ import (
 )
 
 // NewRainbowBridge returns a new Rainbow Bridge for shipping files to your specified cloud storage service.
-func NewRainbowBridge(bc *BridgeConfig) (bridge, error) {
+func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 	// vefify that the config is valid
 	if bc == nil {
 		return nil, &errors.BifrostError{
@@ -81,14 +81,17 @@ func NewRainbowBridge(bc *BridgeConfig) (bridge, error) {
 }
 
 // NewGoogleCloudStorage returns a new client for Google Cloud Storage.
-func NewGoogleCloudStorage(g *BridgeConfig) (bridge, error) {
+func NewGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
 	// first attempt to authenticate with credentials file
 	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(g.CredentialsFile))
 	if err != nil {
 		// if authentication error occurs, reattempt without credentials file
 		client, err = storage.NewClient(context.Background())
 		if err != nil {
-			panic(err)
+			return nil, &errors.BifrostError{
+				Err:  fmt.Errorf(errors.ErrInvalidCredentials),
+				Code: errors.Unauthorized,
+			}
 		}
 	}
 

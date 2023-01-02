@@ -15,4 +15,7 @@ const (
 
 	// ErrInvalidProvider is returned when the provider is invalid.
 	ErrInvalidProvider = "invalid provider"
+
+	// ErrInvalidCredentials is returned when the authentication credentials are invalid.
+	ErrInvalidCredentials = "invalid credentials"
 )

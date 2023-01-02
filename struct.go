@@ -1,30 +1,34 @@
 package bifrost
 
 type BridgeConfig struct {
-	// Provider is the name of the cloud storage service to use
+	// Provider is the name of the cloud storage service to use.
 	Provider string
-	// Zone is the Google Cloud Storage zone to use for storage
+	// Zone is the service zone to use for storage.
+	// This is only implemented by some providers (e.g. S3).
 	Zone string
-	// The name of the S3 bucket to use for storing
+	// DefaultBucket is the default storage bucket to use for storing.
+	// This is only implemented by some providers (e.g. Google Cloud Storage, S3).
 	DefaultBucket string
-	// Path to the S3 credentials file
+	// CredentialsFile is the path to the credentials file.
+	// This is only implemented by some providers (e.g. Google Cloud Storage).
 	CredentialsFile string
-	// The secret key for IAM authentication
+	// SecretKey is the secret key for IAM authentication.
 	SecretKey string
-	// The access key for IAM authentication
+	// AccessKey is the access key for IAM authentication.
 	AccessKey string
-	// The name of the S3 region to use for storing
+	// Region is the service region to use for storing.
+	// This is only implemented by some providers (e.g. S3, Google Cloud Storage).
 	Region string
-	// The default timeout for S3 operations
+	// DefaultTimeout is the time-to-live for time-dependent storage operations.
 	DefaultTimeout int64
-	// EnableDebug enables debug logging
+	// EnableDebug enables debug logging.
 	EnableDebug bool
-	// Project is the cloud project to use for storage
-	// This is only implemented by some providers (e.g. Google Cloud Storage)
+	// Project is the cloud project to use for storage.
+	// This is only implemented by some providers (e.g. Google Cloud Storage).
 	Project string
 }
 
-type bridge interface {
+type rainbowBridge interface {
 	UploadFile(path, filename string) error
 	Disconnect() error
 }
