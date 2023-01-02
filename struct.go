@@ -1,5 +1,6 @@
 package bifrost
 
+// BridgeConfig is the configuration for the rainbow bridge.
 type BridgeConfig struct {
 	// Provider is the name of the cloud storage service to use.
 	Provider string
@@ -31,4 +32,10 @@ type BridgeConfig struct {
 type rainbowBridge interface {
 	UploadFile(path, filename string) error
 	Disconnect() error
+}
+
+// BifrostError is the interface for errors returned by Bifrost.
+type Error interface {
+	Error() string
+	Code() int
 }

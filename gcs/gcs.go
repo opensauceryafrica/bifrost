@@ -14,5 +14,8 @@ Disconnect closes the Google Cloud Storage connection and returns an error if on
 
 Disconnect should only be called when the connection is no longer needed. */
 func (g *GoogleCloudStorage) Disconnect() error {
-	return g.Client.Close()
+	if g.Client != nil {
+		return g.Client.Close()
+	}
+	return nil
 }

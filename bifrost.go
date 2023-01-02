@@ -19,8 +19,8 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 	// vefify that the config is valid
 	if bc == nil {
 		return nil, &errors.BifrostError{
-			Err:  fmt.Errorf(errors.ErrInvalidConfig),
-			Code: errors.BadRequest,
+			Err:       fmt.Errorf(errors.ErrInvalidConfig),
+			ErrorCode: errors.BadRequest,
 		}
 	}
 
@@ -28,32 +28,32 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 	t := reflect.TypeOf(bc)
 	if t.Elem().Kind() != reflect.Struct {
 		return nil, &errors.BifrostError{
-			Err:  fmt.Errorf(errors.ErrInvalidConfig),
-			Code: errors.BadRequest,
+			Err:       fmt.Errorf(errors.ErrInvalidConfig),
+			ErrorCode: errors.BadRequest,
 		}
 	}
 
 	// verify that the config struct is of valid type
 	if t.Elem().Name() != bridgeConfigType {
 		return nil, &errors.BifrostError{
-			Err:  fmt.Errorf(errors.ErrInvalidConfig),
-			Code: errors.BadRequest,
+			Err:       fmt.Errorf(errors.ErrInvalidConfig),
+			ErrorCode: errors.BadRequest,
 		}
 	}
 
 	// verify that the config struct has a valid provider
 	if bc.Provider == "" {
 		return nil, &errors.BifrostError{
-			Err:  fmt.Errorf(errors.ErrInvalidProvider),
-			Code: errors.BadRequest,
+			Err:       fmt.Errorf(errors.ErrInvalidProvider),
+			ErrorCode: errors.BadRequest,
 		}
 	}
 
 	// verify that the provider is valid
 	if _, ok := providers[strings.ToLower(bc.Provider)]; !ok {
 		return nil, &errors.BifrostError{
-			Err:  fmt.Errorf(errors.ErrInvalidProvider),
-			Code: errors.BadRequest,
+			Err:       fmt.Errorf(errors.ErrInvalidProvider),
+			ErrorCode: errors.BadRequest,
 		}
 	}
 
@@ -75,8 +75,8 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 		return newGoogleCloudStorage(bc)
 	default:
 		return nil, &errors.BifrostError{
-			Err:  fmt.Errorf(errors.ErrInvalidProvider),
-			Code: errors.BadRequest,
+			Err:       fmt.Errorf(errors.ErrInvalidProvider),
+			ErrorCode: errors.BadRequest,
 		}
 	}
 
@@ -91,18 +91,16 @@ func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
 		client, err = storage.NewClient(context.Background())
 		if err != nil {
 			return nil, &errors.BifrostError{
-				Err:  fmt.Errorf(errors.ErrInvalidCredentials),
-				Code: errors.Unauthorized,
+				Err:       fmt.Errorf(errors.ErrInvalidCredentials),
+				ErrorCode: errors.Unauthorized,
 			}
 		}
 	}
-
+	// return a new Google Cloud Storage client
 	return &gcs.GoogleCloudStorage{
 		DefaultBucket:   g.DefaultBucket,
 		CredentialsFile: g.CredentialsFile,
 		Project:         g.Project,
-		Region:          g.Region,
-		Zone:            g.Zone,
 		DefaultTimeout:  g.DefaultTimeout,
 		Client:          client,
 	}, nil
