@@ -19,8 +19,8 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 	// vefify that the config is valid
 	if bc == nil {
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf(errors.ErrInvalidConfig),
-			ErrorCode: errors.BadRequest,
+			Err:       fmt.Errorf("config is nil"),
+			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 
@@ -28,32 +28,32 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 	t := reflect.TypeOf(bc)
 	if t.Elem().Kind() != reflect.Struct {
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf(errors.ErrInvalidConfig),
-			ErrorCode: errors.BadRequest,
+			Err:       fmt.Errorf("invalid config type: %s", t.Elem().Kind()),
+			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 
 	// verify that the config struct is of valid type
 	if t.Elem().Name() != bridgeConfigType {
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf(errors.ErrInvalidConfig),
-			ErrorCode: errors.BadRequest,
+			Err:       fmt.Errorf("invalid config type: %s", t.Elem().Name()),
+			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 
 	// verify that the config struct has a valid provider
 	if bc.Provider == "" {
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf(errors.ErrInvalidProvider),
-			ErrorCode: errors.BadRequest,
+			Err:       fmt.Errorf("no provider specified"),
+			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 
 	// verify that the provider is valid
 	if _, ok := providers[strings.ToLower(bc.Provider)]; !ok {
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf(errors.ErrInvalidProvider),
-			ErrorCode: errors.BadRequest,
+			Err:       fmt.Errorf("invalid provider: %s", bc.Provider),
+			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 
@@ -75,8 +75,8 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 		return newGoogleCloudStorage(bc)
 	default:
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf(errors.ErrInvalidProvider),
-			ErrorCode: errors.BadRequest,
+			Err:       fmt.Errorf("invalid provider: %s", bc.Provider),
+			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 
@@ -91,8 +91,8 @@ func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
 		client, err = storage.NewClient(context.Background())
 		if err != nil {
 			return nil, &errors.BifrostError{
-				Err:       fmt.Errorf(errors.ErrInvalidCredentials),
-				ErrorCode: errors.Unauthorized,
+				Err:       err,
+				ErrorCode: errors.ErrUnauthorized,
 			}
 		}
 	}

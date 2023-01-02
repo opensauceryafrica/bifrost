@@ -40,5 +40,5 @@ type rainbowBridge interface {
 // BifrostError is the interface for errors returned by Bifrost.
 type Error interface {
 	Error() string
-	Code() int
+	Code() string
 }
