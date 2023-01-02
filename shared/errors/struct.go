@@ -1,5 +1,6 @@
 package errors
 
+// BifrostError is the error struct.
 type BifrostError struct {
 	// Error is the error message
 	Err error

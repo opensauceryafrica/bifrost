@@ -1,5 +1,6 @@
 package errors
 
+// Error constants.
 const (
 	// ErrBadRequest is returned when something fails due to client error.
 	BadRequest = 400

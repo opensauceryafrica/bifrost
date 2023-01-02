@@ -4,14 +4,14 @@ package bifrost
 import (
 	"context"
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 
 	"cloud.google.com/go/storage"
-	"github.com/opensaucerer/bifrost/errors"
 	"github.com/opensaucerer/bifrost/gcs"
+	"github.com/opensaucerer/bifrost/shared/errors"
 	"google.golang.org/api/option"
-	"google.golang.org/appengine/log"
 )
 
 // NewRainbowBridge returns a new Rainbow Bridge for shipping files to your specified cloud storage service.
@@ -63,7 +63,7 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 		// Just log a warning
 		if bc.EnableDebug {
 			// TODO: create a logger
-			log.Warningf(context.Background(), "No bucket specified for provider %s. This might cause errors or require you to specify a bucket for each operation.", bc.Provider)
+			log.Printf("No bucket specified for provider %s. This might cause errors or require you to specify a bucket for each operation.", providers[strings.ToLower(bc.Provider)])
 		}
 	}
 
@@ -98,10 +98,12 @@ func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
 	}
 	// return a new Google Cloud Storage client
 	return &gcs.GoogleCloudStorage{
+		Provider:        providers[strings.ToLower(g.Provider)],
 		DefaultBucket:   g.DefaultBucket,
 		CredentialsFile: g.CredentialsFile,
 		Project:         g.Project,
 		DefaultTimeout:  g.DefaultTimeout,
 		Client:          client,
+		EnableDebug:     g.EnableDebug,
 	}, nil
 }

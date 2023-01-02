@@ -1,5 +1,9 @@
 package gcs
 
+import (
+	"github.com/opensaucerer/bifrost/shared/types"
+)
+
 /*
 UploadFile uploads a file to Google Cloud Storage and returns an error if one occurs.
 
@@ -18,4 +22,16 @@ func (g *GoogleCloudStorage) Disconnect() error {
 		return g.Client.Close()
 	}
 	return nil
+}
+
+// Config returns the Google Cloud Storage configuration.
+func (g *GoogleCloudStorage) Config() *types.BridgeConfig {
+	return &types.BridgeConfig{
+		Provider:        g.Provider,
+		DefaultBucket:   g.DefaultBucket,
+		CredentialsFile: g.CredentialsFile,
+		Project:         g.Project,
+		DefaultTimeout:  g.DefaultTimeout,
+		EnableDebug:     g.EnableDebug,
+	}
 }

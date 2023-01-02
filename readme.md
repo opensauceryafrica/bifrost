@@ -16,6 +16,8 @@ go get github.com/opensaucerer/bifrost
 
 # Usage
 
+### Mounting a rainbow bridge to link with Google Cloud Storage
+
 ```go
 package main
 
@@ -26,14 +28,23 @@ import (
 )
 
 func main() {
-	gcs := bifrost.NewGoogleCloudStorage(&bifrost.GoogleCloudStorage{
-		DefaultBucket: "default-bucket",
+	bridge, err := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
+		DefaultBucket:   "bucket-name",
+		DefaultTimeout:  10,
+		CredentialsFile: "/path/to/json",
+		Provider:        bifrost.GoogleCloudStorage,
+		EnableDebug:     true,
 	})
+	if err != nil {
+		if err.(bifrost.Error).Error() == bifrost.ErrInvalidProvider {
+			fmt.Println("Whoops, you didn't specify a valid provider!")
+			return
+		}
+		fmt.Println(err.(bifrost.Error).Code(), err)
+		return
+	}
+	defer bridge.Disconnect()
 
-	// upload a file to the default bucket
-    _, err := gcs.Upload("file.txt", "file.txt")
-    if err != nil {
-        panic(err)
-    }
+	fmt.Printf("Connected to %s\n", bridge.Config().Provider)
 }
 ```

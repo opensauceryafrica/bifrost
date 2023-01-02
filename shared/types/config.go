@@ -1,8 +1,5 @@
-package bifrost
+package types
 
-import "github.com/opensaucerer/bifrost/shared/types"
-
-// BridgeConfig is the configuration for the rainbow bridge.
 type BridgeConfig struct {
 	// Provider is the name of the cloud storage service to use.
 	Provider string
@@ -29,16 +26,4 @@ type BridgeConfig struct {
 	// Project is the cloud project to use for storage.
 	// This is only implemented by some providers (e.g. Google Cloud Storage).
 	Project string
-}
-
-type rainbowBridge interface {
-	UploadFile(path, filename string) error
-	Disconnect() error
-	Config() *types.BridgeConfig
-}
-
-// BifrostError is the interface for errors returned by Bifrost.
-type Error interface {
-	Error() string
-	Code() int
 }

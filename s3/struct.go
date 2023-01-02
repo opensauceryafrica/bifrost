@@ -2,7 +2,10 @@ package s3
 
 import "cloud.google.com/go/storage"
 
+// SimpleStorageService is the S3 struct
 type SimpleStorageService struct {
+	// Provider is the name of the cloud storage service to use.
+	Provider string
 	// DefaultBucket is the S3 bucket to use for storage
 	DefaultBucket string
 	// CredentialsFile is the path to the S3 credentials file
