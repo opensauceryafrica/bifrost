@@ -1,3 +1,4 @@
+// package bifrost provides a rainbow bridge for shipping files to cloud storage services.
 package bifrost
 
 // NewGoogleCloudStorage returns a new client for Google Cloud Storage.
