@@ -48,3 +48,16 @@ func main() {
 	fmt.Printf("Connected to %s\n", bridge.Config().Provider)
 }
 ```
+
+### Shipping a file to Google Cloud Storage via the rainbow bridge
+
+```go
+// Upload a file
+uploadedFile, err := bridge.UploadFile("./cmd/0000a_hair.jpg", "0000000_hair.jpg")
+if err != nil {
+    fmt.Println(err.(bifrost.Error).Code(), err)
+    return
+}
+
+fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
+```
