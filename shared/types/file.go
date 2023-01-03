@@ -1,7 +1,5 @@
 package types
 
-import "cloud.google.com/go/storage"
-
 // UploadedFile is the struct returned by the UploadFile function.
 type UploadedFile struct {
 	// Name is the name of the file.
@@ -16,6 +14,7 @@ type UploadedFile struct {
 	URL string
 	// Preview is the URL to a preview of the file.
 	Preview string
-	// Object is the object in the cloud.
-	Object *storage.ObjectHandle
+	// ProviderObject is the object returned by the cloud storage provider.
+	// You need to type assert this to the correct type to use it.
+	ProviderObject interface{}
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+	"github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/types"
 )
@@ -17,7 +18,7 @@ UploadFile uploads a file to Google Cloud Storage and returns an error if one oc
 
 Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (g *GoogleCloudStorage) UploadFile(path, filename string) (types.UploadedFile, error) {
+func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[string]interface{}) (types.UploadedFile, error) {
 	// create context and add timeout if default timeout is set
 	var ctx context.Context
 	var cancel context.CancelFunc
@@ -59,25 +60,61 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string) (types.UploadedFi
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
-	// set public read permissions
-	if g.PublicRead {
-		if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
-			return types.UploadedFile{}, &errors.BifrostError{
-				Err:       err,
-				ErrorCode: errors.ErrFileOperationFailed,
+	// set file permissions
+	if options != nil {
+		// check the options map for acl settings
+		if acl, ok := options[config.ACL]; ok {
+			switch acl.(string) {
+			case config.PublicRead:
+				// set public read permissions
+				if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
+					return types.UploadedFile{}, &errors.BifrostError{
+						Err:       err,
+						ErrorCode: errors.ErrFileOperationFailed,
+					}
+				}
+			case config.Private:
+				// set private permissions
+				if err := obj.ACL().Set(ctx, storage.AllAuthenticatedUsers, storage.RoleReader); err != nil {
+					return types.UploadedFile{}, &errors.BifrostError{
+						Err:       err,
+						ErrorCode: errors.ErrFileOperationFailed,
+					}
+				}
+			}
+		} else if g.PublicRead { // check the bridge config for default acl settings
+			// set public read permissions
+			if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
+				return types.UploadedFile{}, &errors.BifrostError{
+					Err:       err,
+					ErrorCode: errors.ErrFileOperationFailed,
+				}
+			}
+		}
+	}
+	// set object metadata
+	if options != nil {
+		// check the options map for metadata settings
+		if metadata, ok := options[config.Metadata]; ok {
+			// set metadata
+			if _, err := obj.Update(ctx, storage.ObjectAttrsToUpdate{Metadata: metadata.(map[string]string)}); err != nil {
+				return types.UploadedFile{}, &errors.BifrostError{
+					Err:       err,
+					ErrorCode: errors.ErrFileOperationFailed,
+				}
 			}
 		}
 	}
 	// get object attributes
 	objAttrs, _ := obj.Attrs(ctx)
 	return types.UploadedFile{
-		Name:    objAttrs.Name,
-		Bucket:  objAttrs.Bucket,
-		Path:    path,
-		Size:    objAttrs.Size,
-		URL:     objAttrs.MediaLink,
-		Preview: fmt.Sprintf("https://storage.googleapis.com/%s/%s", objAttrs.Bucket, objAttrs.Name),
-		Object:  obj,
+		Name:           objAttrs.Name,
+		Bucket:         objAttrs.Bucket,
+		Path:           path,
+		Size:           objAttrs.Size,
+		URL:            objAttrs.MediaLink,
+		Preview:        fmt.Sprintf("https://storage.googleapis.com/%s/%s", objAttrs.Bucket, objAttrs.Name),
+		ProviderObject: obj,
 	}, nil
 }
 
