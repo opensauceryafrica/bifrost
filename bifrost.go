@@ -84,10 +84,19 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 
 // newGoogleCloudStorage returns a new client for Google Cloud Storage.
 func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
-	// first attempt to authenticate with credentials file
-	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(g.CredentialsFile))
-	if err != nil {
-		// if authentication error occurs, reattempt without credentials file
+	var client *storage.Client
+	var err error
+	if g.CredentialsFile != "" {
+		// first attempt to authenticate with credentials file
+		client, err = storage.NewClient(context.Background(), option.WithCredentialsFile(g.CredentialsFile))
+		if err != nil {
+			return nil, &errors.BifrostError{
+				Err:       err,
+				ErrorCode: errors.ErrUnauthorized,
+			}
+		}
+	} else {
+		// if no credentials file is specified, attempt to authenticate without credentials file
 		client, err = storage.NewClient(context.Background())
 		if err != nil {
 			return nil, &errors.BifrostError{
