@@ -31,8 +31,8 @@ func main() {
 	bridge, err := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
 		DefaultBucket:   "bifrost",
 		DefaultTimeout:  10,
-		CredentialsFile: "./cmd/keys.json", // this is not required if you are using the default credentials
 		Provider:        bifrost.GoogleCloudStorage,
+		CredentialsFile: "/path/to/service/account/json", // this is not required if you are using google's default credentials
 		EnableDebug:     true,
 		PublicRead:      true,
 	})
