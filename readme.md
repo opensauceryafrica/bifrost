@@ -29,11 +29,12 @@ import (
 
 func main() {
 	bridge, err := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
-		DefaultBucket:   "bucket-name",
+		DefaultBucket:   "bpxls-original",
 		DefaultTimeout:  10,
-		CredentialsFile: "/path/to/json",
+		CredentialsFile: "./cmd/keys.json", // this is not required if you are using the default credentials
 		Provider:        bifrost.GoogleCloudStorage,
 		EnableDebug:     true,
+		PublicRead:      true,
 	})
 	if err != nil {
 		if err.(bifrost.Error).Code() == bifrost.ErrInvalidProvider {
@@ -53,11 +54,15 @@ func main() {
 
 ```go
 // Upload a file
-uploadedFile, err := bridge.UploadFile("./cmd/0000a_hair.jpg", "0000000_hair.jpg")
+uploadedFile, err := bridge.UploadFile("./cmd/0000a_hair.jpg", "000990_hair.jpg", map[string]interface{}{
+	bifrost.ACL: bifrost.PublicRead,
+	bifrost.Metadata: map[string]string{
+		"originalname": "0000a_hair.jpg",
+	},
+})
 if err != nil {
-    fmt.Println(err.(bifrost.Error).Code(), err)
-    return
+	fmt.Println(err.(bifrost.Error).Code(), err)
+	return
 }
-
 fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 ```
