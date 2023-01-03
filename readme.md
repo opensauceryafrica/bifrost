@@ -66,3 +66,11 @@ if err != nil {
 }
 fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 ```
+
+# Contributing
+
+Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide]() to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to Bifrost.
+
+# License
+
+Bifrost is [MIT licensed](./LICENSE).
