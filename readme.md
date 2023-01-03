@@ -36,7 +36,7 @@ func main() {
 		EnableDebug:     true,
 	})
 	if err != nil {
-		if err.(bifrost.Error).Error() == bifrost.ErrInvalidProvider {
+		if err.(bifrost.Error).Code() == bifrost.ErrInvalidProvider {
 			fmt.Println("Whoops, you didn't specify a valid provider!")
 			return
 		}
