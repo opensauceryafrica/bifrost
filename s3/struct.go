@@ -18,4 +18,6 @@ type SimpleStorageService struct {
 	DefaultTimeout int64
 	// Client is the S3 client
 	Client *storage.Client
+	// UseAsync enables asynchronous operations with go routines.
+	UseAsync bool
 }

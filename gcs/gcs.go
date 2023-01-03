@@ -121,7 +121,8 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 /*
 Disconnect closes the Google Cloud Storage connection and returns an error if one occurs.
 
-Disconnect should only be called when the connection is no longer needed. */
+Disconnect should only be called when the connection is no longer needed.
+*/
 func (g *GoogleCloudStorage) Disconnect() error {
 	if g.Client != nil {
 		return g.Client.Close()
@@ -138,5 +139,6 @@ func (g *GoogleCloudStorage) Config() *types.BridgeConfig {
 		Project:         g.Project,
 		DefaultTimeout:  g.DefaultTimeout,
 		EnableDebug:     g.EnableDebug,
+		UseAsync:        g.UseAsync,
 	}
 }

@@ -26,4 +26,6 @@ type BridgeConfig struct {
 	// Project is the cloud project to use for storage.
 	// This is only implemented by some providers (e.g. Google Cloud Storage).
 	Project string
+	// UseAsync enables asynchronous operations with go routines.
+	UseAsync bool
 }
