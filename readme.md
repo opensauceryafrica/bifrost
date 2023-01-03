@@ -29,7 +29,7 @@ import (
 
 func main() {
 	bridge, err := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
-		DefaultBucket:   "bpxls-original",
+		DefaultBucket:   "bifrost",
 		DefaultTimeout:  10,
 		CredentialsFile: "./cmd/keys.json", // this is not required if you are using the default credentials
 		Provider:        bifrost.GoogleCloudStorage,
