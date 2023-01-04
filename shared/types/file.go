@@ -17,4 +17,8 @@ type UploadedFile struct {
 	// ProviderObject is the object returned by the cloud storage provider.
 	// You need to type assert this to the correct type to use it.
 	ProviderObject interface{}
+	// Done sends a message to signal when an async process is complete.
+	Done chan bool
+	// Quit receives a message to signal for the exit of an async process.
+	Quit chan bool
 }

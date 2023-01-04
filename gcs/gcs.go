@@ -18,7 +18,7 @@ UploadFile uploads a file to Google Cloud Storage and returns an error if one oc
 
 Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[string]interface{}) (types.UploadedFile, error) {
+func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
 	// create context and add timeout if default timeout is set
 	var ctx context.Context
 	var cancel context.CancelFunc
@@ -29,7 +29,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 	}
 	// verify that file exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return types.UploadedFile{}, &errors.BifrostError{
+		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("file does not exist: %s", path),
 			ErrorCode: errors.ErrBadRequest,
 		}
@@ -37,7 +37,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 	// open file
 	file, err := os.Open(path)
 	if err != nil {
-		return types.UploadedFile{}, &errors.BifrostError{
+		return nil, &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
@@ -48,14 +48,14 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 	obj := g.Client.Bucket(g.DefaultBucket).Object(filename)
 	wc := obj.NewWriter(ctx)
 	if _, err := io.Copy(wc, file); err != nil {
-		return types.UploadedFile{}, &errors.BifrostError{
+		return nil, &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
 	// close writer
 	if err := wc.Close(); err != nil {
-		return types.UploadedFile{}, &errors.BifrostError{
+		return nil, &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
@@ -68,7 +68,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 			case config.PublicRead:
 				// set public read permissions
 				if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
-					return types.UploadedFile{}, &errors.BifrostError{
+					return nil, &errors.BifrostError{
 						Err:       err,
 						ErrorCode: errors.ErrFileOperationFailed,
 					}
@@ -76,7 +76,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 			case config.Private:
 				// set private permissions
 				if err := obj.ACL().Set(ctx, storage.AllAuthenticatedUsers, storage.RoleReader); err != nil {
-					return types.UploadedFile{}, &errors.BifrostError{
+					return nil, &errors.BifrostError{
 						Err:       err,
 						ErrorCode: errors.ErrFileOperationFailed,
 					}
@@ -85,7 +85,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 		} else if g.PublicRead { // check the bridge config for default acl settings
 			// set public read permissions
 			if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
-				return types.UploadedFile{}, &errors.BifrostError{
+				return nil, &errors.BifrostError{
 					Err:       err,
 					ErrorCode: errors.ErrFileOperationFailed,
 				}
@@ -98,7 +98,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 		if metadata, ok := options[config.Metadata]; ok {
 			// set metadata
 			if _, err := obj.Update(ctx, storage.ObjectAttrsToUpdate{Metadata: metadata.(map[string]string)}); err != nil {
-				return types.UploadedFile{}, &errors.BifrostError{
+				return nil, &errors.BifrostError{
 					Err:       err,
 					ErrorCode: errors.ErrFileOperationFailed,
 				}
@@ -107,7 +107,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 	}
 	// get object attributes
 	objAttrs, _ := obj.Attrs(ctx)
-	return types.UploadedFile{
+	return &types.UploadedFile{
 		Name:           objAttrs.Name,
 		Bucket:         objAttrs.Bucket,
 		Path:           path,
