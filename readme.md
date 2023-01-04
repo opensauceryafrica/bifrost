@@ -55,8 +55,8 @@ func main() {
 ```go
 // Upload a file
 uploadedFile, err := bridge.UploadFile("./cmd/0000a_hair.jpg", "000990_hair.jpg", map[string]interface{}{
-	bifrost.ACL: bifrost.PublicRead,
-	bifrost.Metadata: map[string]string{
+	bifrost.OptACL: bifrost.OptPublicRead,
+	bifrost.OptMetadata: map[string]string{
 		"originalname": "0000a_hair.jpg",
 	},
 })

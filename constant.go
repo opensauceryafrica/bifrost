@@ -46,13 +46,13 @@ const (
 // Options constants.
 const (
 	// ACL is the option to set the ACL of the file.
-	ACL = "acl"
+	OptACL = "acl"
 	// PublicRead is the option to set the ACL of the file to public read.
-	PublicRead = "public-read"
+	OptPublicRead = "public-read"
 	// Private is the option to set the ACL of the file to private.
-	Private = "private"
+	OptPrivate = "private"
 	// ContentType is the option to set the content type of the file.
-	ContentType = "content-type"
+	OptContentType = "content-type"
 	// Metadata is the option to set the metadata of the file.
-	Metadata = "metadata"
+	OptMetadata = "metadata"
 )
