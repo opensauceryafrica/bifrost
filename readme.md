@@ -69,8 +69,20 @@ fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 
 # Contributing
 
-Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide]() to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to Bifrost.
+Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide](./contributing.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to Bifrost.
 
 # License
 
 Bifrost is [MIT licensed](./LICENSE).
+
+# Changelog
+
+See [changelog](./changelog.md) for more details.
+
+# Contributors
+
+<a href = "https://github.com/Tanu-N-Prabhu/Python/graphs/contributors">
+  <img src = "https://contrib.rocks/image?repo=opensaucerer/bifrost"/>
+</a>
+
+Made with [contributors-img](https://contrib.rocks).
