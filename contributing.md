@@ -8,7 +8,7 @@ Bifrost has adopted a Code of Conduct that we expect project participants to adh
 
 ## Reporting Issues
 
-If you have found a bug or have a feature request, please report them at this repository's [Issues section](https://github.com/opensaucerer/bifrost/issues). Please check that your issue has not already been reported.
+If you have found a bug or have a feature request, please report them at this repository's [issues section](https://github.com/opensaucerer/bifrost/issues). Please check that your issue has not already been reported.
 
 ## Contributing Code
 
