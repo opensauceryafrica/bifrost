@@ -2,9 +2,9 @@
 
 ## Added
 
+- Added contributors section to readme.
 - Added this changelog file.
 - Added contributing guidelines.
-- Added contributors section to readme.
 
 ## Changed
 
