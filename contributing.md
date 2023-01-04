@@ -8,7 +8,7 @@ Bifrost has adopted a Code of Conduct that we expect project participants to adh
 
 ## Reporting Issues
 
-If you have found a bug or have a feature request, please report them at this repository's [Issues section](/issues). Please check that your issue has not already been reported.
+If you have found a bug or have a feature request, please report them at this repository's [Issues section](https://github.com/opensaucerer/bifrost/issues). Please check that your issue has not already been reported.
 
 ## Contributing Code
 
@@ -23,3 +23,5 @@ If you would like to contribute code to fix a bug, implement a new feature, or i
 7. Update the changelog.md file with a description of your changes/addition. The order of representation is that whereby your most recent changes/addition come first.
 8. Push your branch to your fork of the repository.
 9. Submit a pull request to the `main` branch of the Bifrost repository.
+10. Ensure that your pull request is descriptive and passes all status checks.
+11. Pat yourself on the back and wait for your pull request to be reviewed and merged.
