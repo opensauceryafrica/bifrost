@@ -31,10 +31,12 @@ type BridgeConfig struct {
 	Project string
 	// PublicRead enables public read access to uploaded files.
 	PublicRead bool
+	// UseAsync enables asynchronous operations with go routines.
+	UseAsync bool
 }
 
 type rainbowBridge interface {
-	UploadFile(path, filename string, options map[string]interface{}) (types.UploadedFile, error)
+	UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error)
 	Disconnect() error
 	Config() *types.BridgeConfig
 }

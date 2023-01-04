@@ -20,4 +20,6 @@ type GoogleCloudStorage struct {
 	EnableDebug bool
 	// PublicRead enables public read access to uploaded files.
 	PublicRead bool
+	// UseAsync enables asynchronous operations with go routines.
+	UseAsync bool
 }
