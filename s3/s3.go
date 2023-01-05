@@ -75,6 +75,9 @@ func (s *SimpleStorageService) Config() *types.BridgeConfig {
 		AccessKey:      s.AccessKey,
 		SecretKey:      s.SecretKey,
 		DefaultTimeout: s.DefaultTimeout,
+		EnableDebug:    s.EnableDebug,
+		Provider:       s.Provider,
+		UseAsync:       s.UseAsync,
 	}
 }
 
