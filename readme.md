@@ -29,14 +29,15 @@ import (
 
 func main() {
 	bridge, err := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
-		DefaultBucket:   "bucket-name",
+		DefaultBucket:   "bifrost",
 		DefaultTimeout:  10,
-		CredentialsFile: "/path/to/json",
 		Provider:        bifrost.GoogleCloudStorage,
+		CredentialsFile: "/path/to/service/account/json", // this is not required if you are using google's default credentials
 		EnableDebug:     true,
+		PublicRead:      true,
 	})
 	if err != nil {
-		if err.(bifrost.Error).Error() == bifrost.ErrInvalidProvider {
+		if err.(bifrost.Error).Code() == bifrost.ErrInvalidProvider {
 			fmt.Println("Whoops, you didn't specify a valid provider!")
 			return
 		}
@@ -53,11 +54,35 @@ func main() {
 
 ```go
 // Upload a file
-uploadedFile, err := bridge.UploadFile("./cmd/0000a_hair.jpg", "0000000_hair.jpg")
+uploadedFile, err := bridge.UploadFile("./cmd/0000a_hair.jpg", "000990_hair.jpg", map[string]interface{}{
+	bifrost.OptACL: bifrost.OptPublicRead,
+	bifrost.OptMetadata: map[string]string{
+		"originalname": "0000a_hair.jpg",
+	},
+})
 if err != nil {
-    fmt.Println(err.(bifrost.Error).Code(), err)
-    return
+	fmt.Println(err.(bifrost.Error).Code(), err)
+	return
 }
-
 fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 ```
+
+# Contributing
+
+Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide](./contributing.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to Bifrost.
+
+# License
+
+Bifrost is [MIT licensed](./LICENSE).
+
+# Changelog
+
+See [changelog](./changelog.md) for more details.
+
+# Contributors
+
+<a href = "https://github.com/Tanu-N-Prabhu/Python/graphs/contributors">
+  <img src = "https://contrib.rocks/image?repo=opensaucerer/bifrost"/>
+</a>
+
+Made with [contributors-img](https://contrib.rocks).

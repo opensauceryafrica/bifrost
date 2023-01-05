@@ -6,15 +6,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	awsTypes "github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/types"
 )
 
-func (s SimpleStorageService) UploadFile(path, filename string) (types.UploadedFile, error) {
+func (s *SimpleStorageService) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
 	var ctx context.Context
 	var cancel context.CancelFunc
 	ctx = context.Background()
@@ -24,56 +23,44 @@ func (s SimpleStorageService) UploadFile(path, filename string) (types.UploadedF
 	}
 	// verify that file exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return types.UploadedFile{}, &errors.BifrostError{
+		return &types.UploadedFile{}, &errors.BifrostError{
 			Err:       fmt.Errorf("file does not exist: %s", path),
 			ErrorCode: errors.ErrBadRequest,
-		}
-	}
-	// Create an AWS session
-	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(s.Region),
-		Credentials: credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, "")},
-	)
-	if err != nil {
-		return types.UploadedFile{}, &errors.BifrostError{
-			Err:       fmt.Errorf("error creating session; err: %v", err),
-			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
 	// open file
 	file, err := os.Open(path)
 	if err != nil {
-		return types.UploadedFile{}, &errors.BifrostError{
+		return &types.UploadedFile{}, &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
 	// close file
 	defer file.Close()
-	// Create an S3 client
-	svc := s3.New(sess)
+
 	// Upload the file to S3
 	if s.PublicRead {
-		_, err = svc.PutObjectWithContext(ctx, &s3.PutObjectInput{
+		_, err = s.Client.PutObject(ctx, &s3.PutObjectInput{
 			Bucket: aws.String(s.DefaultBucket),
 			Key:    aws.String(filename),
 			Body:   file,
-			ACL:    aws.String("public-read"),
+			ACL:    awsTypes.ObjectCannedACLPublicRead,
 		})
 	} else {
-		_, err = svc.PutObjectWithContext(ctx, &s3.PutObjectInput{
+		_, err = s.Client.PutObject(ctx, &s3.PutObjectInput{
 			Bucket: aws.String(s.DefaultBucket),
 			Key:    aws.String(filename),
 			Body:   file,
 		})
 	}
 	if err != nil {
-		return types.UploadedFile{}, &errors.BifrostError{
+		return &types.UploadedFile{}, &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
-	return types.UploadedFile{
+	return &types.UploadedFile{
 		Name:   filename,
 		Bucket: s.DefaultBucket,
 		Path:   path,
@@ -88,13 +75,12 @@ func (s *SimpleStorageService) Config() *types.BridgeConfig {
 		AccessKey:      s.AccessKey,
 		SecretKey:      s.SecretKey,
 		DefaultTimeout: s.DefaultTimeout,
-		PublicRead:     s.PublicRead,
 	}
 }
 
 func (s *SimpleStorageService) Disconnect() error {
 	if s.Client != nil {
-		return s.Client.Close()
+		// return s.Client.
 	}
 	return nil
 }

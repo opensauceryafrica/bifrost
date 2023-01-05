@@ -9,8 +9,11 @@ import (
 	"strings"
 
 	"cloud.google.com/go/storage"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/opensaucerer/bifrost/gcs"
-	"github.com/opensaucerer/bifrost/s3"
+	bs3 "github.com/opensaucerer/bifrost/s3"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"google.golang.org/api/option"
 )
@@ -71,7 +74,7 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 	// Create a new bridge based on the provider
 	switch bc.Provider {
 	case "aws":
-		return newAmazonWebServices(bc)
+		return newSimpleStorageService(bc)
 	case "gcs":
 		return newGoogleCloudStorage(bc)
 	default:
@@ -85,10 +88,19 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 
 // newGoogleCloudStorage returns a new client for Google Cloud Storage.
 func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
-	// first attempt to authenticate with credentials file
-	client, err := storage.NewClient(context.Background(), option.WithCredentialsFile(g.CredentialsFile))
-	if err != nil {
-		// if authentication error occurs, reattempt without credentials file
+	var client *storage.Client
+	var err error
+	if g.CredentialsFile != "" {
+		// first attempt to authenticate with credentials file
+		client, err = storage.NewClient(context.Background(), option.WithCredentialsFile(g.CredentialsFile))
+		if err != nil {
+			return nil, &errors.BifrostError{
+				Err:       err,
+				ErrorCode: errors.ErrUnauthorized,
+			}
+		}
+	} else {
+		// if no credentials file is specified, attempt to authenticate without credentials file
 		client, err = storage.NewClient(context.Background())
 		if err != nil {
 			return nil, &errors.BifrostError{
@@ -107,17 +119,41 @@ func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
 		Client:          client,
 		EnableDebug:     g.EnableDebug,
 		PublicRead:      g.PublicRead,
+		UseAsync:        g.UseAsync,
 	}, nil
 }
 
-// newGoogleCloudStorage returns a new client for AWS S3
-func newAmazonWebServices(g *BridgeConfig) (rainbowBridge, error) {
-	return &s3.SimpleStorageService{
-		Provider:        providers[strings.ToLower(g.Provider)],
-		DefaultBucket:   g.DefaultBucket,
-		Region: g.Region,
-		PublicRead: g.PublicRead,
-		SecretKey: g.SecretKey,
-		AccessKey: g.AccessKey,
+// newSimpleStorageService returns a new client for AWS S3
+func newSimpleStorageService(g *BridgeConfig) (rainbowBridge, error) {
+	var client *s3.Client
+	if g.AccessKey != "" && g.SecretKey != "" {
+		creds := credentials.NewStaticCredentialsProvider(g.AccessKey, g.SecretKey, "")
+		cfg, err := config.LoadDefaultConfig(context.Background(), config.WithCredentialsProvider(creds), config.WithRegion(g.Region))
+		if err != nil {
+			return nil, &errors.BifrostError{
+				Err:       err,
+				ErrorCode: errors.ErrUnauthorized,
+			}
+		}
+		client = s3.NewFromConfig(cfg)
+	} else {
+		// Load AWS Shared Configuration
+		cfg, err := config.LoadDefaultConfig(context.TODO())
+		if err != nil {
+			return nil, &errors.BifrostError{
+				Err:       err,
+				ErrorCode: errors.ErrUnauthorized,
+			}
+		}
+		client = s3.NewFromConfig(cfg)
+	}
+	return &bs3.SimpleStorageService{
+		Provider:      providers[strings.ToLower(g.Provider)],
+		DefaultBucket: g.DefaultBucket,
+		Region:        g.Region,
+		PublicRead:    g.PublicRead,
+		SecretKey:     g.SecretKey,
+		AccessKey:     g.AccessKey,
+		Client:        client,
 	}, nil
 }
