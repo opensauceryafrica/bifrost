@@ -35,7 +35,7 @@ type BridgeConfig struct {
 	UseAsync bool
 }
 
-type rainbowBridge interface {
+type RainbowBridge interface {
 	UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error)
 	Disconnect() error
 	Config() *types.BridgeConfig

@@ -28,6 +28,7 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
+
 	// open file
 	file, err := os.Open(path)
 	if err != nil {

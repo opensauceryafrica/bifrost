@@ -19,7 +19,7 @@ import (
 )
 
 // NewRainbowBridge returns a new Rainbow Bridge for shipping files to your specified cloud storage service.
-func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
+func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 	// vefify that the config is valid
 	if bc == nil {
 		return nil, &errors.BifrostError{
@@ -73,7 +73,7 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 
 	// Create a new bridge based on the provider
 	switch bc.Provider {
-	case "aws":
+	case "s3":
 		return newSimpleStorageService(bc)
 	case "gcs":
 		return newGoogleCloudStorage(bc)
@@ -87,7 +87,7 @@ func NewRainbowBridge(bc *BridgeConfig) (rainbowBridge, error) {
 }
 
 // newGoogleCloudStorage returns a new client for Google Cloud Storage.
-func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
+func newGoogleCloudStorage(g *BridgeConfig) (RainbowBridge, error) {
 	var client *storage.Client
 	var err error
 	if g.CredentialsFile != "" {
@@ -124,7 +124,7 @@ func newGoogleCloudStorage(g *BridgeConfig) (rainbowBridge, error) {
 }
 
 // newSimpleStorageService returns a new client for AWS S3
-func newSimpleStorageService(g *BridgeConfig) (rainbowBridge, error) {
+func newSimpleStorageService(g *BridgeConfig) (RainbowBridge, error) {
 	var client *s3.Client
 	if g.AccessKey != "" && g.SecretKey != "" {
 		creds := credentials.NewStaticCredentialsProvider(g.AccessKey, g.SecretKey, "")
