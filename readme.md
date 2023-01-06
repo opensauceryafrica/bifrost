@@ -124,8 +124,8 @@ See [changelog](./changelog.md) for more details.
 
 # Contributors
 
-<a href = "https://github.com/Tanu-N-Prabhu/Python/graphs/contributors">
-  <img src = "https://contrib.rocks/image?repo=opensaucerer/bifrost"/>
+<a href="https://github.com/opensaucerer/bifrost/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=opensaucerer/bifrost" />
 </a>
 
-Made with [contributors-img](https://contrib.rocks).
+Made with [contrib.rocks](https://contrib.rocks).
