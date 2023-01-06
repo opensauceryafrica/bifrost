@@ -5,6 +5,7 @@ var (
 	providers = map[string]string{
 		"s3":  "Simple Storage Service",
 		"gcs": "Google Cloud Storage",
+		"pinata": "Pinata IPFS",
 	}
 )
 
@@ -17,6 +18,8 @@ const (
 
 	// BridgeConfigType is the type of the bridge configuration
 	bridgeConfigType = "BridgeConfig"
+	// PinataIPFSStorage is the identifier of the pinata IPFS storage
+	PinataIPFSStorage = "pinata"
 )
 
 // Error constants.
