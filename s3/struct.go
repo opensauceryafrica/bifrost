@@ -1,6 +1,6 @@
 package s3
 
-import "cloud.google.com/go/storage"
+import "github.com/aws/aws-sdk-go-v2/service/s3"
 
 // SimpleStorageService is the S3 struct
 type SimpleStorageService struct {
@@ -16,8 +16,16 @@ type SimpleStorageService struct {
 	Zone string
 	// DefaultTimeout is the time-to-live for time-dependent S3 operations
 	DefaultTimeout int64
-	// Client is the S3 client
-	Client *storage.Client
 	// UseAsync enables asynchronous operations with go routines.
 	UseAsync bool
+	// s3 client
+	Client *s3.Client
+	// PublicRead enables public read access to uploaded files.
+	PublicRead bool
+	// SecretKey is the secret key for IAM authentication.
+	SecretKey string
+	// AccessKey is the access key for IAM authentication.
+	AccessKey string
+	// EnableDebug enables debug logging.
+	EnableDebug bool
 }
