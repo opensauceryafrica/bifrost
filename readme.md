@@ -37,6 +37,7 @@ func main() {
 		PublicRead:      true,
 	})
 	if err != nil {
+		// bifrost comes with some error codes
 		if err.(bifrost.Error).Code() == bifrost.ErrInvalidProvider {
 			fmt.Println("Whoops, you didn't specify a valid provider!")
 			return
@@ -67,6 +68,48 @@ if err != nil {
 fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 ```
 
+### Mount a rainbow bridge and ship a file to Amazon S3
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/opensaucerer/bifrost"
+)
+
+func main() {
+	bridge, err := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
+		DefaultBucket: "default-bucket",
+		Provider:      bifrost.SimpleStorageService,
+		AccessKey:     "access-key",
+		SecretKey:     "secret-key",
+		EnableDebug:   true,
+		PublicRead:    true,
+		Region: "ap-northeast-1",
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer bridge.Disconnect()
+	fmt.Printf("Connected to %s\n", bridge.Config().Provider)
+	// Upload a file
+	uploadedFile, err := bridge.UploadFile("./cmd/0000a_hair.jpg", "0000000_hair.jpg", map[string]interface{}{
+		bifrost.OptACL: bifrost.ACLPublicRead, // this will bypass the global public read setting defined in the bridge config
+		bifrost.OptMetadata: map[string]string{
+			"originalname": "0000a_hair.jpg",
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
+}
+
+```
+
 # Contributing
 
 Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide](./contributing.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to Bifrost.
@@ -81,8 +124,8 @@ See [changelog](./changelog.md) for more details.
 
 # Contributors
 
-<a href = "https://github.com/Tanu-N-Prabhu/Python/graphs/contributors">
-  <img src = "https://contrib.rocks/image?repo=opensaucerer/bifrost"/>
+<a href="https://github.com/opensaucerer/bifrost/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=opensaucerer/bifrost" />
 </a>
 
-Made with [contributors-img](https://contrib.rocks).
+Made with [contrib.rocks](https://contrib.rocks).

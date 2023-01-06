@@ -37,7 +37,7 @@ type BridgeConfig struct {
 	PinataJWT string
 }
 
-type rainbowBridge interface {
+type RainbowBridge interface {
 	UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error)
 	Disconnect() error
 	Config() *types.BridgeConfig
