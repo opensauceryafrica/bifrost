@@ -28,4 +28,6 @@ type BridgeConfig struct {
 	Project string
 	// UseAsync enables asynchronous operations with go routines.
 	UseAsync bool
+	// 
+	PinataJWT string
 }
