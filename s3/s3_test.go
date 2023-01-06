@@ -2,6 +2,7 @@ package s3_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/opensaucerer/bifrost"
@@ -12,10 +13,10 @@ var (
 	err    error
 )
 
-const (
-	AWS_ACCESS_KEY_ID     = ""
-	AWS_SECRET_ACCESS_KEY = ""
-	AWS_BUCKET_NAME       = ""
+var (
+	AWS_ACCESS_KEY_ID     = os.Getenv("AWS_ACCESS_KEY_ID")
+	AWS_SECRET_ACCESS_KEY = os.Getenv("AWS_SECRET_ACCESS_KEY")
+	AWS_BUCKET_NAME       = os.Getenv("AWS_BUCKET_NAME")
 )
 
 func setup() {
@@ -47,7 +48,7 @@ func TestUPload(t *testing.T) {
 
 	t.Run("Upload to S3", func(t *testing.T) {
 		uploadedFile, err := bridge.UploadFile("./file.png", "file.png", map[string]interface{}{
-			bifrost.OptACL: bifrost.OptPublicRead,
+			bifrost.OptACL: bifrost.ACLPublicRead,
 			bifrost.OptMetadata: map[string]string{
 				"originalname": "file.png",
 			},

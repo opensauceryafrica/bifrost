@@ -65,7 +65,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 		// check the options map for acl settings
 		if acl, ok := options[config.OptACL]; ok {
 			switch acl.(string) {
-			case config.OptPublicRead:
+			case config.ACLPublicRead:
 				// set public read permissions
 				if err := obj.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
 					return nil, &errors.BifrostError{
@@ -73,7 +73,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 						ErrorCode: errors.ErrFileOperationFailed,
 					}
 				}
-			case config.OptPrivate:
+			case config.ACLPrivate:
 				// set private permissions
 				if err := obj.ACL().Set(ctx, storage.AllAuthenticatedUsers, storage.RoleReader); err != nil {
 					return nil, &errors.BifrostError{
