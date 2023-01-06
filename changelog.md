@@ -1,10 +1,23 @@
 # V0.0.3
 
+## Changed
+
+- renamed acl options constants to be more descriptive
+- made rainbow bridge interface into an exported component
+
 ## Added
 
-- Added contributors section to readme.
-- Added this changelog file.
-- Added contributing guidelines.
+- added support for passing options to the UploadFile function.
+- added support for uploading single files to S3 via the rainbow bridge using the UploadFile function.
+- added support for creating a rainbow bridge to link with S3
+
+# V0.0.3
+
+## Added
+
+- added contributors section to readme.
+- added this changelog file.
+- added contributing guidelines.
 
 ## Changed
 
