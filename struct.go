@@ -33,7 +33,7 @@ type BridgeConfig struct {
 	PublicRead bool
 	// UseAsync enables asynchronous operations with go routines.
 	UseAsync bool
-	// Pinata authorization JWT  
+	// PinataJWT is the JWT generated for your Pinata cloud account
 	PinataJWT string
 }
 

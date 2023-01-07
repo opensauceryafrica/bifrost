@@ -3,14 +3,17 @@ package bifrost
 var (
 	// providers is a map of the supported providers
 	providers = map[string]string{
-		"s3":  "Simple Storage Service",
-		"gcs": "Google Cloud Storage",
-		"pinata": "Pinata IPFS",
+		"pinata": "Pinata Cloud Storage",
+		"s3":     "Simple Storage Service",
+		"gcs":    "Google Cloud Storage",
 	}
 )
 
 // Misc constants
 const (
+
+	// PinataCloud is the identifier of the pinata Cloud storage
+	PinataCloud = "pinata"
 	// SimpleStorageService is the identifier of the S3 provider
 	SimpleStorageService = "s3"
 	// GoogleCloudStorage is the identifier of the Google Cloud Storage provider
@@ -18,8 +21,6 @@ const (
 
 	// BridgeConfigType is the type of the bridge configuration
 	bridgeConfigType = "BridgeConfig"
-	// PinataIPFSStorage is the identifier of the pinata IPFS storage
-	PinataIPFSStorage = "pinata"
 )
 
 // Error constants.
