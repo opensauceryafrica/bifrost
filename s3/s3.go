@@ -106,7 +106,7 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 }
 
 // UploadMultiFile
-func (s *SimpleStorageService) UploadMultiFile(requests []*types.UploadFileRequest, options map[string]interface{}) ([]*types.UploadedFile, error) {
+func (s *SimpleStorageService) UploadMultiFile(requests []*types.UploadFileRequest) ([]*types.UploadedFile, error) {
 	return nil, nil
 }
 

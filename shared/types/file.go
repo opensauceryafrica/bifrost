@@ -29,4 +29,6 @@ type UploadFileRequest struct {
 	Path string
 	// Filename is the name to store the file in cloud platform.
 	Filename string
+	// Options
+	Options map[string]interface{}
 }

@@ -121,17 +121,17 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 
 /*
 UploadMultiFile uploads files to Google Cloud Storage and returns an error if all files
-are not uploaded successfully. Set EnableDebug to true to see detailed logs if all files
-are not uploaded.
+are not uploaded successfully. Set EnableDebug to true in bridge.BridgeConfig to see
+detailed logs of errors if all files are not uploaded.
 
 Note: UploadMultiFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (g *GoogleCloudStorage) UploadMultiFile(requests []*types.UploadFileRequest, options map[string]interface{}) ([]*types.UploadedFile, error) {
+func (g *GoogleCloudStorage) UploadMultiFile(requests []*types.UploadFileRequest) ([]*types.UploadedFile, error) {
 	var err error
 	uploadedFiles := make([]*types.UploadedFile, 0, len(requests))
 
 	for _, request := range requests {
-		uploadedFile, err := g.UploadFile(request.Path, request.Filename, options)
+		uploadedFile, err := g.UploadFile(request.Path, request.Filename, request.Options)
 		if err != nil {
 			if g.EnableDebug {
 				// log a failed upload file request
