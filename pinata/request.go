@@ -1,0 +1,6 @@
+package pinata
+
+
+func NewClientFactory(){
+
+}

@@ -13,3 +13,4 @@ const (
 	// Metadata is the option to set the metadata of the file.
 	OptMetadata = "metadata"
 )
+
