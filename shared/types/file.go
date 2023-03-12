@@ -21,6 +21,9 @@ type UploadedFile struct {
 	Done chan bool
 	// Quit receives a message to signal for the exit of an async process.
 	Quit chan bool
+	// CID is the content identifier for the file.
+	// This is only implemented by some providers (e.g. Pinata Cloud).
+	CID string
 }
 
 // Param is the struct used to pass parameters to request methods.

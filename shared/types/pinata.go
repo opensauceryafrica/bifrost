@@ -7,3 +7,10 @@ type PinataAuthResponse struct {
 	} `json:"error"`
 	Message string `json:"message"`
 }
+
+type PinataPinFileResponse struct {
+	IpfsHash  string `json:"IpfsHash"`
+	Timestamp string `json:"Timestamp"`
+	PinSize   int64  `json:"PinSize"`
+	Error     string `json:"error"`
+}

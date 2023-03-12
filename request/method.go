@@ -5,7 +5,6 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
-	"path/filepath"
 
 	"github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/types"
@@ -24,7 +23,7 @@ func (c *Client) PostForm(url string, params types.Param) ([]byte, error) {
 		// close file
 		defer file.Close()
 
-		part, err := writer.CreateFormFile(pf.Key, filepath.Base(pf.Path))
+		part, err := writer.CreateFormFile(pf.Key, pf.Name)
 		if err != nil {
 			return nil, err
 		}

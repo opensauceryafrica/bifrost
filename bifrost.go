@@ -70,7 +70,7 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 		// Just log a warning
 		if bc.EnableDebug {
 			// TODO: create a logger
-			log.Printf("No bucket specified for provider %s. This might cause errors or require you to specify a bucket for each operation.", providers[strings.ToLower(bc.Provider)])
+			log.Printf(errors.WARN+"WARN: "+errors.NONE+"No bucket specified for provider %s. This might cause errors or require you to specify a bucket for each operation.", providers[strings.ToLower(bc.Provider)])
 		}
 	}
 

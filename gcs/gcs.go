@@ -66,7 +66,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
-	// set file permissions
+	// configure upload options
 	if options != nil {
 		// check the options map for acl settings
 		if acl, ok := options[config.OptACL]; ok {
@@ -98,7 +98,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 			}
 		}
 	}
-	// set object metadata
+	// configure upload options
 	if options != nil {
 		// check the options map for metadata settings
 		if metadata, ok := options[config.OptMetadata]; ok {
@@ -119,7 +119,7 @@ func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[strin
 		Path:           path,
 		Size:           objAttrs.Size,
 		URL:            objAttrs.MediaLink,
-		Preview:        fmt.Sprintf("https://storage.googleapis.com/%s/%s", objAttrs.Bucket, objAttrs.Name),
+		Preview:        fmt.Sprintf(config.URLGoogleCloudStorage, objAttrs.Bucket, objAttrs.Name),
 		ProviderObject: obj,
 	}, nil
 }

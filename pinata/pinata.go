@@ -1,31 +1,17 @@
 package pinata
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
-	"time"
+	"strings"
 
 	"github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/types"
 )
-
-type MetaData struct {
-	Name string `json:"name"`
-}
-
-type SuccessResponse struct {
-	IpfsHash  string `json:"IpfsHash"`
-	Timestamp string `json:"Timestamp"`
-	PinSize   int64  `json:"PinSize"`
-}
 
 /*
 UploadFile uploads a file to Pinata and returns an error if one occurs.
@@ -44,122 +30,90 @@ func (p PinataCloud) UploadFile(path, filename string, options map[string]interf
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
-	// open file
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrFileOperationFailed,
-		}
+
+	// build the request params
+	if filename == "" {
+		filename = filepath.Base(path)
 	}
-	// close file
-	defer file.Close()
-
-	url := config.URLPinataPinFile
-	method := "POST"
-
-	payload := &bytes.Buffer{} // buffer writer
-	writer := multipart.NewWriter(payload)
-
-	part1, err := writer.CreateFormFile("file", filepath.Base(path))
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("file does not exist: %s", path),
-			ErrorCode: errors.ErrBadRequest,
-		}
+	var param types.Param = types.Param{
+		Files: []types.ParamFile{
+			{
+				Path: path,
+				Key:  "file",
+				Name: filename,
+			},
+		},
+		Data: []types.ParamData{},
 	}
 
-	_, err = io.Copy(part1, file)
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("failed to copy multipart data"),
-			ErrorCode: errors.ErrBadRequest,
-		}
-	}
+	// configure upload options
+	for k, v := range options {
+		switch k {
+		// pinataOptions
+		case config.OptPinata:
+			if v, ok := v.(map[string]interface{}); ok {
+				opt, err := json.Marshal(v)
+				if err != nil {
+					return nil, &errors.BifrostError{
+						Err:       fmt.Errorf("failed to marshal pinata options: %s", err.Error()),
+						ErrorCode: errors.ErrBadRequest,
+					}
+				}
+				param.Data = append(param.Data, types.ParamData{
+					Key:   config.OptPinata,
+					Value: string(opt),
+				})
+			}
 
-	metaData := map[string]string{"name": filename}
-	pinataMetadata, err := json.Marshal(metaData)
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("failed to marshal metadata"),
-			ErrorCode: errors.ErrBadRequest,
-		}
-	}
-
-	pinataOptions, err := json.Marshal(options)
-
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("failed to convert metadata to JSON"),
-			ErrorCode: errors.ErrBadRequest,
-		}
-	}
-
-	_ = writer.WriteField("pinataOptions", string(pinataOptions))
-	_ = writer.WriteField("pinataMetadata", string(pinataMetadata))
-
-	err = writer.Close()
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("failed to close multipart writer"),
-			ErrorCode: errors.ErrBadRequest,
+		// pinataMetadata
+		case config.PinataCloud + strings.ToUpper(config.OptMetadata[:1]) + config.OptMetadata[1:]:
+			if v, ok := v.(map[string]interface{}); ok {
+				m, err := json.Marshal(v)
+				if err != nil {
+					return nil, &errors.BifrostError{
+						Err:       fmt.Errorf("failed to marshal pinata metadata: %s", err.Error()),
+						ErrorCode: errors.ErrBadRequest,
+					}
+				}
+				param.Data = append(param.Data, types.ParamData{
+					Key:   config.PinataCloud + strings.ToUpper(config.OptMetadata[:1]) + config.OptMetadata[1:],
+					Value: string(m),
+				})
+			}
 		}
 	}
 
-	req, err := http.NewRequest(method, url, payload)
-
-	if p.DefaultTimeout > 0 {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(p.DefaultTimeout))
-		defer cancel()
-		req = req.WithContext(ctx)
-	}
-
-	client := &http.Client{}
-
+	res, err := p.Client.PostForm(config.URLPinataPinFile, param)
 	if err != nil {
 		return nil, &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
-	req.Header.Add("Authorization", "Bearer "+p.Config().PinataJWT)
 
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-	res, err := client.Do(req)
-
-	if err != nil {
+	var obj types.PinataPinFileResponse
+	if err := json.Unmarshal(res, &obj); err != nil {
 		return nil, &errors.BifrostError{
-			Err:       err,
+			Err:       fmt.Errorf("failed to unmarshal response: %s", err.Error()),
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
-	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
 
-	if err != nil {
+	if obj.Error != "" {
 		return nil, &errors.BifrostError{
-			Err:       err,
+			Err:       fmt.Errorf("failed to upload file: %s", obj.Error),
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
-	var responseCode int = res.StatusCode
-
-	if responseCode != errors.Status200 {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("upload request failed with status %d", responseCode),
-			ErrorCode: errors.ErrFileOperationFailed,
-		}
-	}
-
-	res_ := SuccessResponse{}
-	json.Unmarshal([]byte(body), &res_)
 
 	return &types.UploadedFile{
-		Size:    res_.PinSize,
-		Name:    res_.IpfsHash,
-		Preview: fmt.Sprintf("https://gateway.pinata.cloud/ipfs/%v", res_.IpfsHash),
+		Size:           obj.PinSize,
+		CID:            obj.IpfsHash,
+		Preview:        fmt.Sprintf(config.URLPinataGateway, obj.IpfsHash),
+		ProviderObject: obj,
+		Name:           filepath.Base(path),
+		Path:           path,
 	}, nil
-
 }
 
 /*
@@ -168,7 +122,7 @@ Disconnect closes the Pinata connection and returns an error if one occurs.
 Disconnect should only be called when the connection is no longer needed.
 */
 func (p *PinataCloud) Disconnect() error {
-	if p.Client != nil {
+	if p.IsConnected() {
 		p.Client = nil
 	}
 	return nil
@@ -200,7 +154,6 @@ func (p *PinataCloud) Preflight() error {
 	req.Method = config.MethodGet
 	res, err := p.Client.Http.Do(req)
 	if err != nil {
-		fmt.Println(err)
 		return &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrBadRequest,

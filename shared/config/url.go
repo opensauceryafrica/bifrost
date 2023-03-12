@@ -10,4 +10,10 @@ const (
 	URLPinataPinCID = "https://api.pinata.cloud/pinning/pinByHash"
 	// URLPinataAuth is the endpoint for testing authentication against provided Pinata credentials
 	URLPinataAuth = "https://api.pinata.cloud/data/testAuthentication"
+	// URLPinataGateway is the public gateway for Pinata cloud.
+	URLPinataGateway = "https://gateway.pinata.cloud/ipfs/%v"
+	// URLGoogleCloudStorage is the public gateway for Google Cloud Storage.
+	URLGoogleCloudStorage = "https://storage.googleapis.com/%s/%s"
+	// URLSimpleStorageService is the public gateway for Simple Storage Service.
+	URLSimpleStorageService = "https://%s.s3.%s.amazonaws.com/%s"
 )

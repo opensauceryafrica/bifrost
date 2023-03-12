@@ -61,7 +61,7 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 		// set public read permissions
 		params.ACL = awsTypes.ObjectCannedACLPublicRead
 	}
-	// set file permissions
+	// configure upload options
 	for k, v := range options {
 		switch k {
 		// check the options map for acl settings
@@ -109,7 +109,7 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 		Name:           filename,
 		Bucket:         s.DefaultBucket,
 		Path:           path,
-		Preview:        fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.DefaultBucket, s.Region, filename),
+		Preview:        fmt.Sprintf(config.URLSimpleStorageService, s.DefaultBucket, s.Region, filename),
 		Size:           obj.ContentLength,
 		ProviderObject: obj,
 	}, nil
