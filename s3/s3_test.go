@@ -1,7 +1,6 @@
 package s3_test
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -11,15 +10,14 @@ import (
 var (
 	bridge bifrost.RainbowBridge
 	err    error
-)
 
-var (
 	AWS_ACCESS_KEY_ID     = os.Getenv("AWS_ACCESS_KEY_ID")
 	AWS_SECRET_ACCESS_KEY = os.Getenv("AWS_SECRET_ACCESS_KEY")
 	AWS_BUCKET_NAME       = os.Getenv("AWS_BUCKET_NAME")
 )
 
-func setup() {
+func setup(t *testing.T) {
+
 	bridge, err = bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
 		DefaultBucket:  AWS_BUCKET_NAME,
 		DefaultTimeout: 10,
@@ -28,35 +26,34 @@ func setup() {
 		PublicRead:     true,
 		AccessKey:      AWS_ACCESS_KEY_ID,
 		SecretKey:      AWS_SECRET_ACCESS_KEY,
-		Region:         "us-east-2",
+		Region:         "ap-northeast-1",
 	})
 	if err != nil {
 		if err.(bifrost.Error).Code() == bifrost.ErrInvalidProvider {
-			fmt.Println("Whoops, you didn't specify a valid provider!")
+			t.Error("Whoops, you didn't specify a valid provider!")
 			return
 		}
-		fmt.Println(err.(bifrost.Error).Code(), err)
+		t.Error(err.(bifrost.Error).Code(), err)
 		return
 	}
 	defer bridge.Disconnect()
 
-	fmt.Printf("Connected to %s\n", bridge.Config().Provider)
+	t.Logf("Connected to %s\n", bridge.Config().Provider)
 }
 
 func TestUPload(t *testing.T) {
-	setup()
+	setup(t)
 
 	t.Run("Upload to S3", func(t *testing.T) {
-		uploadedFile, err := bridge.UploadFile("./file.png", "file.png", map[string]interface{}{
+		uploadedFile, err := bridge.UploadFile("../image/file.png", "file.png", map[string]interface{}{
 			bifrost.OptACL: bifrost.ACLPublicRead,
 			bifrost.OptMetadata: map[string]string{
 				"originalname": "file.png",
 			},
 		})
 		if err != nil {
-			fmt.Println(err.(bifrost.Error).Code(), err)
-			return
+			t.Errorf("Failed to upload file: %v", err)
 		}
-		fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
+		t.Logf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 	})
 }

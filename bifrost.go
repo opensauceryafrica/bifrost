@@ -88,22 +88,20 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 	}
 
 }
-func newPinataCloud(g *BridgeConfig) (RainbowBridge, error) {
 
+// newPinataCloud returns a new client for Pinata Cloud.
+func newPinataCloud(g *BridgeConfig) (RainbowBridge, error) {
 	if g.PinataJWT == "" {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("pinata JWT is required"),
 			ErrorCode: errors.ErrUnauthorized,
 		}
 	}
-
-
-	
 	var p = pinata.PinataCloud{
-		PinataJWT:       g.PinataJWT,
-		Provider:        providers[strings.ToLower(g.Provider)],
-		DefaultTimeout:  g.DefaultTimeout,
-		PublicRead:      g.PublicRead,
+		PinataJWT:      g.PinataJWT,
+		Provider:       providers[strings.ToLower(g.Provider)],
+		DefaultTimeout: g.DefaultTimeout,
+		PublicRead:     g.PublicRead,
 	}
 
 	// Test authentication

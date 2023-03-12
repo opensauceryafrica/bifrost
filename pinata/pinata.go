@@ -2,6 +2,7 @@ package pinata
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,11 +10,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-		"context"
+	"time"
+
 	"github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/types"
-	"time"
 )
 
 type MetaData struct {
@@ -45,6 +46,12 @@ func (p PinataCloud) UploadFile(path, filename string, options map[string]interf
 	payload := &bytes.Buffer{} // buffer writer
 	writer := multipart.NewWriter(payload)
 	file, err := os.Open(path)
+	if err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrFileOperationFailed,
+		}
+	}
 	defer file.Close()
 
 	if err != nil {
@@ -69,7 +76,6 @@ func (p PinataCloud) UploadFile(path, filename string, options map[string]interf
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
-
 
 	metaData := map[string]string{"name": filename}
 	pinataMetadata, err := json.Marshal(metaData)
@@ -104,10 +110,10 @@ func (p PinataCloud) UploadFile(path, filename string, options map[string]interf
 
 	if p.DefaultTimeout > 0 {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(p.DefaultTimeout))
-  	defer cancel()
-	  req = req.WithContext(ctx)
+		defer cancel()
+		req = req.WithContext(ctx)
 	}
-	
+
 	client := &http.Client{}
 
 	if err != nil {
@@ -151,7 +157,7 @@ func (p PinataCloud) UploadFile(path, filename string, options map[string]interf
 	return &types.UploadedFile{
 		Size:    res_.PinSize,
 		Name:    res_.IpfsHash,
-		Preview: fmt.Sprintf("https://gateway.pinata.cloud/ipfs/%v",res_.IpfsHash),
+		Preview: fmt.Sprintf("https://gateway.pinata.cloud/ipfs/%v", res_.IpfsHash),
 	}, nil
 
 }
@@ -164,13 +170,13 @@ func (g *PinataCloud) Disconnect() error {
 
 func (p *PinataCloud) Config() *types.BridgeConfig {
 	return &types.BridgeConfig{
-		Provider:        p.Provider,
-		DefaultTimeout:  p.DefaultTimeout,
-		PinataJWT:       p.PinataJWT,
+		Provider:       p.Provider,
+		DefaultTimeout: p.DefaultTimeout,
+		PinataJWT:      p.PinataJWT,
 	}
 }
 
-func (g *PinataCloud) PreFlight() (error) {
+func (g *PinataCloud) PreFlight() error {
 
 	url := config.PinataAuthentication
 	method := "GET"
@@ -188,7 +194,7 @@ func (g *PinataCloud) PreFlight() (error) {
 	if err != nil {
 		fmt.Println(err)
 		return &errors.BifrostError{
-			Err:      err,
+			Err:       err,
 			ErrorCode: errors.ErrBadRequest,
 		}
 
@@ -197,7 +203,7 @@ func (g *PinataCloud) PreFlight() (error) {
 	_, err = io.ReadAll(res.Body)
 
 	if err != nil {
-		return  &errors.BifrostError{
+		return &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrBadRequest,
 		}

@@ -60,3 +60,15 @@ const (
 	// Metadata is the option to set the metadata of the file.
 	OptMetadata = "metadata"
 )
+
+// Method constants.
+const (
+	// MethodGet is the HTTP method for GET requests.
+	MethodGet = "GET"
+	// MethodPost is the HTTP method for POST requests.
+	MethodPost = "POST"
+	// MethodPut is the HTTP method for PUT requests.
+	MethodPut = "PUT"
+	// MethodDelete is the HTTP method for DELETE requests.
+	MethodDelete = "DELETE"
+)
