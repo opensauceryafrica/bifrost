@@ -23,14 +23,24 @@ func setup(t *testing.T) {
 	}
 }
 
-func TestUploadFileSucceeds(t *testing.T) {
+func TestPinataUploadFile(t *testing.T) {
 	setup(t)
 
-	_, err = bridge.UploadFile("../image/file.png", "../image/file.png", map[string]interface{}{"cidVersion": 1, "wrapWithDirectory": true})
+	t.Run("Tests Pinata UploadFile method", func(t *testing.T) {
+		o, err := bridge.UploadFile("../image/file.png", "pinata_file.png", map[string]interface{}{
+			bifrost.OptPinata: map[string]interface{}{
+				"cidVersion": 1,
+			},
+			bifrost.OptMetadata: map[string]string{
+				"originalname": "file.png",
+			},
+		})
 
-	if err != nil {
-		t.Errorf("Failed to upload file: %v", err)
-	}
+		if err != nil {
+			t.Errorf("Failed to upload file: %v", err)
+		}
 
-	t.Logf("Uploaded file: %s to %s\n", "file.png", "file.png")
+		t.Logf("Uploaded file: %s to %s\n", o.Name, o.Preview)
+	})
+
 }
