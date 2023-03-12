@@ -19,6 +19,12 @@ UploadFile uploads a file to Google Cloud Storage and returns an error if one oc
 Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
 func (g *GoogleCloudStorage) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
+	if !g.IsConnected() {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("no active Google Cloud Storage client"),
+			ErrorCode: errors.ErrClientError,
+		}
+	}
 	// create context and add timeout if default timeout is set
 	var ctx context.Context
 	var cancel context.CancelFunc
@@ -141,4 +147,9 @@ func (g *GoogleCloudStorage) Config() *types.BridgeConfig {
 		EnableDebug:     g.EnableDebug,
 		UseAsync:        g.UseAsync,
 	}
+}
+
+// IsConnected returns true if the Google Cloud Storage client is connected.
+func (g *GoogleCloudStorage) IsConnected() bool {
+	return g.Client != nil
 }

@@ -1,48 +1,62 @@
 package request
 
 import (
-	"encoding/json"
-	"fmt"
+	"bytes"
 	"io"
+	"mime/multipart"
+	"os"
+	"path/filepath"
 
 	"github.com/opensaucerer/bifrost/shared/config"
-	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/types"
 )
 
-func (c *Client) PinataPreflight() error {
-	c.request.URL, _ = c.request.URL.Parse(config.URLPinataAuth)
-	c.request.Method = config.MethodGet
-	res, err := c.http.Do(c.request)
-	if err != nil {
-		fmt.Println(err)
-		return &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrBadRequest,
-		}
+func (c *Client) PostForm(url string, params types.Param) ([]byte, error) {
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
 
+	for _, pf := range params.Files {
+		// open file
+		file, err := os.Open(pf.Path)
+		if err != nil {
+			return nil, err
+		}
+		// close file
+		defer file.Close()
+
+		part, err := writer.CreateFormFile(pf.Key, filepath.Base(pf.Path))
+		if err != nil {
+			return nil, err
+		}
+		_, err = io.Copy(part, file)
+		if err != nil {
+			return nil, err
+		}
 	}
-	defer res.Body.Close()
-	b, err := io.ReadAll(res.Body)
+
+	for _, pd := range params.Data {
+		_ = writer.WriteField(pd.Key, pd.Value)
+	}
+
+	err := writer.Close()
 	if err != nil {
-		return &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrBadRequest,
-		}
+		return nil, err
 	}
-	var par types.PinataAuthResponse
-	err = json.Unmarshal(b, &par)
+
+	// copy request
+	req := c.Request.Clone(c.Request.Context())
+	req.Method = config.MethodPost
+	req.URL, _ = c.Request.URL.Parse(url)
+	req.Header.Add(config.ReqContentType, writer.FormDataContentType())
+	req.Body = io.NopCloser(body)
+
+	// make request
+	resp, err := c.Http.Do(req)
 	if err != nil {
-		return &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrBadRequest,
-		}
+		return nil, err
 	}
-	if par.Message == "" {
-		return &errors.BifrostError{
-			Err:       fmt.Errorf(par.Error.Reason),
-			ErrorCode: errors.ErrUnauthorized,
-		}
-	}
-	return nil
+	defer resp.Body.Close()
+
+	// read response
+	return io.ReadAll(resp.Body)
 }

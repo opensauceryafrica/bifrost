@@ -28,23 +28,23 @@ type SuccessResponse struct {
 }
 
 /*
-	Upload File to Pinata IPFS
+UploadFile uploads a file to Pinata and returns an error if one occurs.
 */
-
 func (p PinataCloud) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
-
+	if !p.IsConnected() {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("no active Pinata client"),
+			ErrorCode: errors.ErrClientError,
+		}
+	}
+	// verify that file exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("file does not exist: %s", path),
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
-
-	url := config.URLPinataPinFile
-	method := "POST"
-
-	payload := &bytes.Buffer{} // buffer writer
-	writer := multipart.NewWriter(payload)
+	// open file
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, &errors.BifrostError{
@@ -52,14 +52,14 @@ func (p PinataCloud) UploadFile(path, filename string, options map[string]interf
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
+	// close file
 	defer file.Close()
 
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrFileOperationFailed,
-		}
-	}
+	url := config.URLPinataPinFile
+	method := "POST"
+
+	payload := &bytes.Buffer{} // buffer writer
+	writer := multipart.NewWriter(payload)
 
 	part1, err := writer.CreateFormFile("file", filepath.Base(path))
 	if err != nil {
@@ -167,10 +167,14 @@ Disconnect closes the Pinata connection and returns an error if one occurs.
 
 Disconnect should only be called when the connection is no longer needed.
 */
-func (g *PinataCloud) Disconnect() error {
+func (p *PinataCloud) Disconnect() error {
+	if p.Client != nil {
+		p.Client = nil
+	}
 	return nil
 }
 
+// Config returns the Pinata Cloud configuration.
 func (p *PinataCloud) Config() *types.BridgeConfig {
 	return &types.BridgeConfig{
 		Provider:       p.Provider,
@@ -182,39 +186,52 @@ func (p *PinataCloud) Config() *types.BridgeConfig {
 	}
 }
 
-func (g *PinataCloud) PreFlight() error {
-
-	url := config.URLPinataAuth
-	method := "GET"
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		fmt.Println(err)
+// Preflight attempts to authenticate with Pinata and returns an error if one occurs.
+func (p *PinataCloud) Preflight() error {
+	if !p.IsConnected() {
 		return &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrBadRequest,
+			Err:       fmt.Errorf("no active Pinata client"),
+			ErrorCode: errors.ErrClientError,
 		}
 	}
-	req.Header.Add("Authorization", "Bearer PINATA_JWT")
-	res, err := client.Do(req)
+	// copy the request
+	req := p.Client.Request.Clone(p.Client.Request.Context())
+	req.URL, _ = req.URL.Parse(config.URLPinataAuth)
+	req.Method = config.MethodGet
+	res, err := p.Client.Http.Do(req)
 	if err != nil {
 		fmt.Println(err)
 		return &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrBadRequest,
 		}
-
 	}
 	defer res.Body.Close()
-	_, err = io.ReadAll(res.Body)
-
+	b, err := io.ReadAll(res.Body)
 	if err != nil {
 		return &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
-
+	var par types.PinataAuthResponse
+	err = json.Unmarshal(b, &par)
+	if err != nil {
+		return &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+	if par.Message == "" {
+		return &errors.BifrostError{
+			Err:       fmt.Errorf(par.Error.Reason),
+			ErrorCode: errors.ErrUnauthorized,
+		}
+	}
 	return nil
+}
 
+// IsConnected returns true if the Pinata Cloud connection is non nil.
+func (p *PinataCloud) IsConnected() bool {
+	return p.Client != nil
 }

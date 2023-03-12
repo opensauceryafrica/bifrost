@@ -41,6 +41,7 @@ type RainbowBridge interface {
 	UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error)
 	Disconnect() error
 	Config() *types.BridgeConfig
+	IsConnected() bool
 }
 
 // BifrostError is the interface for errors returned by Bifrost.

@@ -20,6 +20,8 @@ const (
 	ReqAuth = "Authorization"
 	// ReqBearer is the bearer token identifier
 	ReqBearer = "Bearer %s"
+	// ReqContentType is the content type header identifier
+	ReqContentType = "Content-Type"
 	// MethodGet is the HTTP method for GET requests.
 	MethodGet = "GET"
 	// MethodPost is the HTTP method for POST requests.

@@ -8,8 +8,8 @@ import (
 	"github.com/opensaucerer/bifrost/shared/config"
 )
 
-// BuildClient returns a new client for making requests
-func BuildClient(url string, token string, timeout int64) *Client {
+// NewClient returns a new client for making requests
+func NewClient(url string, token string, timeout int64) *Client {
 	h := &http.Client{}
 	if timeout > 0 {
 		h.Timeout = time.Duration(timeout) * time.Second
@@ -21,7 +21,7 @@ func BuildClient(url string, token string, timeout int64) *Client {
 	}
 	req.Header.Add(config.ReqAuth, fmt.Sprintf(config.ReqBearer, token))
 	return &Client{
-		http:    h,
-		request: req,
+		Http:    h,
+		Request: req,
 	}
 }

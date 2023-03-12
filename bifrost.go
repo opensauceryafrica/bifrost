@@ -14,7 +14,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/opensaucerer/bifrost/gcs"
 	"github.com/opensaucerer/bifrost/pinata"
+	"github.com/opensaucerer/bifrost/request"
 	bs3 "github.com/opensaucerer/bifrost/s3"
+	bconfig "github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"google.golang.org/api/option"
 )
@@ -91,29 +93,27 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 
 // newPinataCloud returns a new client for Pinata Cloud.
 func newPinataCloud(g *BridgeConfig) (RainbowBridge, error) {
+	// TODO: add support for API key and API secret
 	if g.PinataJWT == "" {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("pinata JWT is required"),
 			ErrorCode: errors.ErrUnauthorized,
 		}
 	}
+
 	var p = pinata.PinataCloud{
 		PinataJWT:      g.PinataJWT,
 		Provider:       providers[strings.ToLower(g.Provider)],
 		DefaultTimeout: g.DefaultTimeout,
 		PublicRead:     g.PublicRead,
+		UseAsync:       g.UseAsync,
+		EnableDebug:    g.EnableDebug,
+		Client:         request.NewClient(bconfig.URLPinataAuth, g.PinataJWT, g.DefaultTimeout),
 	}
-
-	// Test authentication
-	err := p.PreFlight()
-
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("problem authenticating: %v", err),
-			ErrorCode: errors.ErrBadRequest,
-		}
+	// authenticate with Pinata Cloud
+	if err := p.Preflight(); err != nil {
+		return nil, err
 	}
-
 	// return a new Pinata Cloud Storage Provider
 	return &p, nil
 }

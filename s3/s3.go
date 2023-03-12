@@ -20,6 +20,12 @@ UploadFile uploads a file to S3 and returns an error if one occurs.
 Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
 func (s *SimpleStorageService) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
+	if !s.IsConnected() {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("no active S3 client"),
+			ErrorCode: errors.ErrClientError,
+		}
+	}
 	var ctx context.Context
 	var cancel context.CancelFunc
 	ctx = context.Background()
@@ -129,5 +135,11 @@ Disconnect closes the S3 connection and returns an error if one occurs.
 Disconnect should only be called when the connection is no longer needed.
 */
 func (s *SimpleStorageService) Disconnect() error {
+	s.Client = nil
 	return nil
+}
+
+// IsConnected returns true if the S3 connection is open.
+func (s *SimpleStorageService) IsConnected() bool {
+	return s.Client != nil
 }
