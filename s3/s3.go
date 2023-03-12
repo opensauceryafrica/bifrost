@@ -14,6 +14,11 @@ import (
 	"github.com/opensaucerer/bifrost/shared/types"
 )
 
+/*
+UploadFile uploads a file to S3 and returns an error if one occurs.
+
+Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
+*/
 func (s *SimpleStorageService) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
 	var ctx context.Context
 	var cancel context.CancelFunc
@@ -94,7 +99,6 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
-	fmt.Println(obj.Metadata)
 	return &types.UploadedFile{
 		Name:           filename,
 		Bucket:         s.DefaultBucket,
@@ -119,6 +123,11 @@ func (s *SimpleStorageService) Config() *types.BridgeConfig {
 	}
 }
 
+/*
+Disconnect closes the S3 connection and returns an error if one occurs.
+
+Disconnect should only be called when the connection is no longer needed.
+*/
 func (s *SimpleStorageService) Disconnect() error {
 	return nil
 }

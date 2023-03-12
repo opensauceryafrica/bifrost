@@ -16,7 +16,10 @@ const (
 
 // Request constants
 const (
+	// ReqAuth is the authorization header identifier
 	ReqAuth = "Authorization"
+	// ReqBearer is the bearer token identifier
+	ReqBearer = "Bearer %s"
 	// MethodGet is the HTTP method for GET requests.
 	MethodGet = "GET"
 	// MethodPost is the HTTP method for POST requests.

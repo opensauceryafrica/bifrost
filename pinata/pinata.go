@@ -28,7 +28,7 @@ type SuccessResponse struct {
 }
 
 /*
-	Upload File to pinata IPFS
+	Upload File to Pinata IPFS
 */
 
 func (p PinataCloud) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
@@ -40,7 +40,7 @@ func (p PinataCloud) UploadFile(path, filename string, options map[string]interf
 		}
 	}
 
-	url := config.PinataPinFile
+	url := config.URLPinataPinFile
 	method := "POST"
 
 	payload := &bytes.Buffer{} // buffer writer
@@ -163,7 +163,10 @@ func (p PinataCloud) UploadFile(path, filename string, options map[string]interf
 }
 
 /*
- */
+Disconnect closes the Pinata connection and returns an error if one occurs.
+
+Disconnect should only be called when the connection is no longer needed.
+*/
 func (g *PinataCloud) Disconnect() error {
 	return nil
 }
@@ -173,12 +176,15 @@ func (p *PinataCloud) Config() *types.BridgeConfig {
 		Provider:       p.Provider,
 		DefaultTimeout: p.DefaultTimeout,
 		PinataJWT:      p.PinataJWT,
+		EnableDebug:    p.EnableDebug,
+		UseAsync:       p.UseAsync,
+		PublicRead:     p.PublicRead,
 	}
 }
 
 func (g *PinataCloud) PreFlight() error {
 
-	url := config.PinataAuthentication
+	url := config.URLPinataAuth
 	method := "GET"
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)

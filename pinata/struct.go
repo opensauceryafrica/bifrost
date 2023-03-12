@@ -2,7 +2,7 @@ package pinata
 
 import "github.com/opensaucerer/bifrost/request"
 
-// pinataIPFSStorage is the Pinata IPFS struct
+// PinataCloud is the Pinata IPFS struct
 type PinataCloud struct {
 	// Provider is the name of the cloud storage service to use.
 	Provider string
@@ -14,7 +14,7 @@ type PinataCloud struct {
 	PinataJWT string
 	// UseAsync enables asynchronous operations with go routines.
 	UseAsync bool
-	// pinata request client
+	// Pinata request client
 	Client *request.Client
 	// EnableDebug enables debug logging.
 	EnableDebug bool

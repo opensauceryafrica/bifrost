@@ -1,13 +1,13 @@
 package config
 
-// URL constants.
+// Pinata URL constants.
 const (
-    // PinataPinFile is the API endpoint for pinning files and folders to pinata cloud
-    PinataPinFile = "https://api.pinata.cloud/pinning/pinFileToIPFS"
-    // This endpoint allows the sender to add and pin any JSON object they wish to Pinata's IPFS nodes.
-    PinataPinJSON = "https://api.pinata.cloud/pinning/pinJSONToIPFS"
-    // This endpoint allows the sender to pin Files to CID
-    PinataPinCID = "https://api.pinata.cloud/pinning/pinByHash"
-		// This endpoint allows for testing authentication against provided credentials
-		PinataAuthentication = "https://api.pinata.cloud/data/PreFlight"
+	// URLPinataPinFile is the endpoint for pinning files/folders to Pinata cloud.
+	URLPinataPinFile = "https://api.pinata.cloud/pinning/pinFileToIPFS"
+	// URLPinataPinJSON is the endpoint for pinning JSON objects to Pinata cloud.
+	URLPinataPinJSON = "https://api.pinata.cloud/pinning/pinJSONToIPFS"
+	// URLPinataPinCID is the endpoint for pinning CIDs to Pinata cloud.
+	URLPinataPinCID = "https://api.pinata.cloud/pinning/pinByHash"
+	// URLPinataAuth is the endpoint for testing authentication against provided Pinata credentials
+	URLPinataAuth = "https://api.pinata.cloud/data/testAuthentication"
 )
