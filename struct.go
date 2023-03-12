@@ -54,6 +54,12 @@ type RainbowBridge interface {
 	Config() *types.BridgeConfig
 	// IsConnected returns true if there is an active connection to the provider.
 	IsConnected() bool
+	/*
+		UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
+
+		Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
+	*/
+	UploadFolder(path string, options map[string]interface{}) ([]*types.UploadedFile, error)
 }
 
 // BifrostError is the interface for errors returned by Bifrost.

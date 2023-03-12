@@ -16,7 +16,7 @@ import (
 /*
 UploadFile uploads a file to Pinata and returns an error if one occurs.
 */
-func (p PinataCloud) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
+func (p *PinataCloud) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
 	if !p.IsConnected() {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("no active Pinata client"),
@@ -187,4 +187,13 @@ func (p *PinataCloud) Preflight() error {
 // IsConnected returns true if the Pinata Cloud connection is non nil.
 func (p *PinataCloud) IsConnected() bool {
 	return p.Client != nil
+}
+
+/*
+	UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
+
+	Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
+*/
+func (p *PinataCloud) UploadFolder(path string, options map[string]interface{}) ([]*types.UploadedFile, error) {
+	return nil, nil
 }

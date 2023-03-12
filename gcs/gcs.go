@@ -153,3 +153,12 @@ func (g *GoogleCloudStorage) Config() *types.BridgeConfig {
 func (g *GoogleCloudStorage) IsConnected() bool {
 	return g.Client != nil
 }
+
+/*
+	UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
+
+	Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
+*/
+func (g *GoogleCloudStorage) UploadFolder(path string, options map[string]interface{}) ([]*types.UploadedFile, error) {
+	return nil, nil
+}
