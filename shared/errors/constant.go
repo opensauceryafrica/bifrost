@@ -22,4 +22,7 @@ const (
 
 	// ErrFileOperationFailed is returned when a file operation fails.
 	ErrFileOperationFailed = "file operation failed"
+
+	// ErrClientError is returned when the client returns an error.
+	ErrClientError = "client error"
 )

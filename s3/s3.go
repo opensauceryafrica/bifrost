@@ -14,7 +14,18 @@ import (
 	"github.com/opensaucerer/bifrost/shared/types"
 )
 
+/*
+UploadFile uploads a file to S3 and returns an error if one occurs.
+
+Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
+*/
 func (s *SimpleStorageService) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
+	if !s.IsConnected() {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("no active S3 client"),
+			ErrorCode: errors.ErrClientError,
+		}
+	}
 	var ctx context.Context
 	var cancel context.CancelFunc
 	ctx = context.Background()
@@ -50,7 +61,7 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 		// set public read permissions
 		params.ACL = awsTypes.ObjectCannedACLPublicRead
 	}
-	// set file permissions
+	// configure upload options
 	for k, v := range options {
 		switch k {
 		// check the options map for acl settings
@@ -94,12 +105,11 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
-	fmt.Println(obj.Metadata)
 	return &types.UploadedFile{
 		Name:           filename,
 		Bucket:         s.DefaultBucket,
 		Path:           path,
-		Preview:        fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", s.DefaultBucket, s.Region, filename),
+		Preview:        fmt.Sprintf(config.URLSimpleStorageService, s.DefaultBucket, s.Region, filename),
 		Size:           obj.ContentLength,
 		ProviderObject: obj,
 	}, nil
@@ -119,6 +129,17 @@ func (s *SimpleStorageService) Config() *types.BridgeConfig {
 	}
 }
 
+/*
+Disconnect closes the S3 connection and returns an error if one occurs.
+
+Disconnect should only be called when the connection is no longer needed.
+*/
 func (s *SimpleStorageService) Disconnect() error {
+	s.Client = nil
 	return nil
+}
+
+// IsConnected returns true if the S3 connection is open.
+func (s *SimpleStorageService) IsConnected() bool {
+	return s.Client != nil
 }

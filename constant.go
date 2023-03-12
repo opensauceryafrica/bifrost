@@ -12,7 +12,7 @@ var (
 // Misc constants
 const (
 
-	// PinataCloud is the identifier of the pinata Cloud storage
+	// PinataCloud is the identifier of the Pinata Cloud storage
 	PinataCloud = "pinata"
 	// SimpleStorageService is the identifier of the S3 provider
 	SimpleStorageService = "s3"
@@ -45,6 +45,9 @@ const (
 
 	// ErrFileOperationFailed is returned when a file operation fails.
 	ErrFileOperationFailed = "file operation failed"
+
+	// ErrClientError is returned when the client returns an error.
+	ErrClientError = "client error"
 )
 
 // Options constants.
@@ -59,4 +62,6 @@ const (
 	OptContentType = "content-type"
 	// Metadata is the option to set the metadata of the file.
 	OptMetadata = "metadata"
+	// OptPinata is the option to set the pinataOptions
+	OptPinata = "pinataOptions"
 )

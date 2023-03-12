@@ -38,9 +38,22 @@ type BridgeConfig struct {
 }
 
 type RainbowBridge interface {
+	/*
+		UploadFile uploads a file to the provider storage and returns an error if one occurs.
+
+		Note: for some providers, UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
+	*/
 	UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error)
+	/*
+		Disconnect closes the provider client connection and returns an error if one occurs.
+
+		Disconnect should only be called when the connection is no longer needed.
+	*/
 	Disconnect() error
+	// Config returns the provider configuration.
 	Config() *types.BridgeConfig
+	// IsConnected returns true if there is an active connection to the provider.
+	IsConnected() bool
 }
 
 // BifrostError is the interface for errors returned by Bifrost.

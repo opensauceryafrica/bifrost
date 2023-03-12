@@ -26,6 +26,8 @@ type BridgeConfig struct {
 	// Project is the cloud project to use for storage.
 	// This is only implemented by some providers (e.g. Google Cloud Storage).
 	Project string
+	// PublicRead enables public read access to uploaded files.
+	PublicRead bool
 	// UseAsync enables asynchronous operations with go routines.
 	UseAsync bool
 	// PinataJWT is the JWT generated for your Pinata cloud account
