@@ -1,4 +1,5 @@
-// package bifrost provides a rainbow bridge for shipping files to cloud storage services.
+/* package bifrost provides a rainbow bridge for shipping files to any cloud storage service.
+it's like bifrost from marvel comics, but for files. */
 package bifrost
 
 import (
@@ -9,15 +10,15 @@ import (
 	"strings"
 
 	"cloud.google.com/go/storage"
-	"github.com/aws/aws-sdk-go-v2/config"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	awss3 "github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/opensaucerer/bifrost/gcs"
 	"github.com/opensaucerer/bifrost/pinata"
-	"github.com/opensaucerer/bifrost/request"
 	bs3 "github.com/opensaucerer/bifrost/s3"
 	bconfig "github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
+	"github.com/opensaucerer/bifrost/shared/request"
 	"google.golang.org/api/option"
 )
 
@@ -158,27 +159,27 @@ func newGoogleCloudStorage(g *BridgeConfig) (RainbowBridge, error) {
 
 // newSimpleStorageService returns a new client for AWS S3
 func newSimpleStorageService(g *BridgeConfig) (RainbowBridge, error) {
-	var client *s3.Client
+	var client *awss3.Client
 	if g.AccessKey != "" && g.SecretKey != "" {
 		creds := credentials.NewStaticCredentialsProvider(g.AccessKey, g.SecretKey, "")
-		cfg, err := config.LoadDefaultConfig(context.Background(), config.WithCredentialsProvider(creds), config.WithRegion(g.Region))
+		cfg, err := awsconfig.LoadDefaultConfig(context.Background(), awsconfig.WithCredentialsProvider(creds), awsconfig.WithRegion(g.Region))
 		if err != nil {
 			return nil, &errors.BifrostError{
 				Err:       err,
 				ErrorCode: errors.ErrUnauthorized,
 			}
 		}
-		client = s3.NewFromConfig(cfg)
+		client = awss3.NewFromConfig(cfg)
 	} else {
 		// Load AWS Shared Configuration
-		cfg, err := config.LoadDefaultConfig(context.TODO())
+		cfg, err := awsconfig.LoadDefaultConfig(context.TODO())
 		if err != nil {
 			return nil, &errors.BifrostError{
 				Err:       err,
 				ErrorCode: errors.ErrUnauthorized,
 			}
 		}
-		client = s3.NewFromConfig(cfg)
+		client = awss3.NewFromConfig(cfg)
 	}
 	return &bs3.SimpleStorageService{
 		Provider:      providers[strings.ToLower(g.Provider)],

@@ -16,7 +16,25 @@ import (
 /*
 UploadFile uploads a file to Pinata and returns an error if one occurs.
 */
-func (p *PinataCloud) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
+func (p *PinataCloud) UploadFile(fileFace interface{}) (*types.UploadedFile, error) {
+	// marshal interface to bytes
+	fileBytes, err := json.Marshal(fileFace)
+	if err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+
+	// unmarshal bytes to struct
+	var bFile types.File
+	if err := json.Unmarshal(fileBytes, &bFile); err != nil {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("argument must be of type bifrost.File"),
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+
 	if !p.IsConnected() {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("no active Pinata client"),
@@ -24,30 +42,30 @@ func (p *PinataCloud) UploadFile(path, filename string, options map[string]inter
 		}
 	}
 	// verify that file exists
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(bFile.Path); os.IsNotExist(err) {
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("file does not exist: %s", path),
+			Err:       fmt.Errorf("file does not exist: %s", bFile.Path),
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 
 	// build the request params
-	if filename == "" {
-		filename = filepath.Base(path)
+	if bFile.Filename == "" {
+		bFile.Filename = filepath.Base(bFile.Path)
 	}
 	var param types.Param = types.Param{
 		Files: []types.ParamFile{
 			{
-				Path: path,
+				Path: bFile.Path,
 				Key:  "file",
-				Name: filename,
+				Name: bFile.Filename,
 			},
 		},
 		Data: []types.ParamData{},
 	}
 
 	// configure upload options
-	for k, v := range options {
+	for k, v := range bFile.Options {
 		switch k {
 		// pinataOptions
 		case config.OptPinata:
@@ -111,8 +129,8 @@ func (p *PinataCloud) UploadFile(path, filename string, options map[string]inter
 		CID:            obj.IpfsHash,
 		Preview:        fmt.Sprintf(config.URLPinataGateway, obj.IpfsHash),
 		ProviderObject: obj,
-		Name:           filepath.Base(path),
-		Path:           path,
+		Name:           filepath.Base(bFile.Path),
+		Path:           bFile.Path,
 	}, nil
 }
 
@@ -194,6 +212,11 @@ func (p *PinataCloud) IsConnected() bool {
 
 	Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (p *PinataCloud) UploadFolder(path string, options map[string]interface{}) ([]*types.UploadedFile, error) {
+func (p *PinataCloud) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
+	return nil, nil
+}
+
+// UploadMultiFile
+func (s *PinataCloud) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
 }

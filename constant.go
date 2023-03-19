@@ -1,5 +1,15 @@
 package bifrost
 
+/*
+At a point, you might wonder why we have some structs and constants duplicated in the root package and in the subpackages.
+This is because we want to keep the imports as simple as possible for the end user.
+No need to import subpackages, just import the root package and you're good to go.
+
+So, if you need to use the BridgeConfig struct, you can just import the root package and use it. And if you need to assert an error, you can just import the root package and use it.
+
+It's just a design choice, others might oppose it, that's fine. But keeping the learning curve as low as possible is a priority for me.
+*/
+
 var (
 	// providers is a map of the supported providers
 	providers = map[string]string{
