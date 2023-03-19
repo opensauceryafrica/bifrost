@@ -1,10 +1,23 @@
+# V0.0.6
+
+## Changed
+
+- Refactored the entire package to use structs as input as opposed to an enumerated list of arguments.
+- Updated test cases across all currently spported providers
+
+## New
+
+- Added support for `UploadMultiFiles` function to all currently supported providers.
+
 # V0.0.5
 
 ## Changed
+
 - Updated test cases across all currently spported providers
 - Updated structs and interfaces as well as their documentation
 
 ## New
+
 - added support for uploading single files to Pinata Cloud via the rainbow bridge using the UploadFile function.
 - added support for creating a rainbow bridge to link with Pinata Cloud.
 
@@ -32,7 +45,6 @@
 - added contributors section to readme.
 - added this changelog file.
 - added contributing guidelines.
-
 
 # V0.0.2
 
