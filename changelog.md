@@ -1,4 +1,4 @@
-# V0.0.6
+# v0.0.6
 
 ## Changed
 
@@ -9,7 +9,7 @@
 
 - Added support for `UploadMultiFiles` function to all currently supported providers.
 
-# V0.0.5
+# v0.0.5
 
 ## Changed
 
@@ -21,7 +21,7 @@
 - added support for uploading single files to Pinata Cloud via the rainbow bridge using the UploadFile function.
 - added support for creating a rainbow bridge to link with Pinata Cloud.
 
-# V0.0.4
+# v0.0.4
 
 ## Changed
 
@@ -34,7 +34,7 @@
 - added support for uploading single files to S3 via the rainbow bridge using the UploadFile function.
 - added support for creating a rainbow bridge to link with S3
 
-# V0.0.3
+# v0.0.3
 
 ## Changed
 
@@ -46,14 +46,14 @@
 - added this changelog file.
 - added contributing guidelines.
 
-# V0.0.2
+# v0.0.2
 
 ## New
 
 - added Done and Quit channels to UploadedFile struct.
 - added UseAsync option to BridgeConfig to allow for async uploads.
 
-# V0.0.1
+# v0.0.1
 
 ## New
 
