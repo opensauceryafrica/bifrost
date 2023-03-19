@@ -79,7 +79,7 @@ import (
 )
 
 func main() {
-	bridge, err := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
+	bridge, _ := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
 		DefaultBucket: "default-bucket",
 		Provider:      bifrost.SimpleStorageService,
 		AccessKey:     "access-key",
@@ -88,10 +88,6 @@ func main() {
 		PublicRead:    true,
 		Region: "ap-northeast-1",
 	})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 	defer bridge.Disconnect()
 	fmt.Printf("Connected to %s\n", bridge.Config().Provider)
 	// Upload a file
@@ -105,6 +101,48 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
+}
+
+```
+
+### Mount a rainbow bridge and ship a file to Pinata
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/opensaucerer/bifrost"
+)
+
+func main() {
+	bridge, _ := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
+		Provider:    bifrost.PinataCloud,
+		PinataJWT:   os.Getenv("PINATA_JWT"),
+		EnableDebug: true,
+		PublicRead:  true,
+	})
+	defer bridge.Disconnect()
+
+	fmt.Printf("Connected to %s\n", bridge.Config().Provider)
+
+	// Upload a file
+	uploadedFile, err := bridge.UploadFile("./cmd/0000a_hair.jpg", "0000000_hair.jpg", map[string]interface{}{
+		bifrost.OptPinata: map[string]interface{}{
+			"cidVersion": 1,
+		},
+		bifrost.OptMetadata: map[string]string{
+			"originalname": "0000a_hair.jpg",
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 }
 

@@ -1,4 +1,4 @@
-package s3_test
+package gcs_test
 
 import (
 	"os"
@@ -11,22 +11,19 @@ var (
 	bridge bifrost.RainbowBridge
 	err    error
 
-	AWS_ACCESS_KEY_ID     = os.Getenv("AWS_ACCESS_KEY_ID")
-	AWS_SECRET_ACCESS_KEY = os.Getenv("AWS_SECRET_ACCESS_KEY")
-	AWS_BUCKET_NAME       = os.Getenv("AWS_BUCKET_NAME")
+	GOOGLE_BUCKET_NAME    = os.Getenv("GOOGLE_BUCKET_NAME")
+	CREDENTIALS_FILE_PATH = os.Getenv("CREDENTIALS_FILE_PATH")
 )
 
 func setup(t *testing.T) {
 
 	bridge, err = bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
-		DefaultBucket:  AWS_BUCKET_NAME,
-		DefaultTimeout: 10,
-		Provider:       bifrost.SimpleStorageService,
-		EnableDebug:    true,
-		PublicRead:     true,
-		AccessKey:      AWS_ACCESS_KEY_ID,
-		SecretKey:      AWS_SECRET_ACCESS_KEY,
-		Region:         "ap-northeast-1",
+		DefaultBucket:   GOOGLE_BUCKET_NAME,
+		DefaultTimeout:  10,
+		CredentialsFile: CREDENTIALS_FILE_PATH, // this is not required if you are using the default credentials
+		Provider:        bifrost.GoogleCloudStorage,
+		EnableDebug:     true,
+		PublicRead:      true,
 	})
 	if err != nil {
 		if err.(bifrost.Error).Code() == bifrost.ErrInvalidProvider {
@@ -41,10 +38,10 @@ func setup(t *testing.T) {
 	t.Logf("Connected to %s\n", bridge.Config().Provider)
 }
 
-func TestS3UploadFile(t *testing.T) {
+func TestGCSUploadFile(t *testing.T) {
 	setup(t)
 
-	t.Run("Tests S3 UploadFile method", func(t *testing.T) {
+	t.Run("Tests Google Cloud Storage UploadFile method", func(t *testing.T) {
 		o, err := bridge.UploadFile("../image/file.png", "file.png", map[string]interface{}{
 			bifrost.OptACL: bifrost.ACLPublicRead,
 			bifrost.OptMetadata: map[string]string{

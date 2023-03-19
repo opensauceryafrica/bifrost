@@ -25,4 +25,7 @@ const (
 
 	// ErrIncompleteMultiFileUpload is returned when a multifile upload fails on some files.
 	ErrIncompleteMultiFileUpload = "incomplete files upload"
+
+	// ErrClientError is returned when the client returns an error.
+	ErrClientError = "client error"
 )

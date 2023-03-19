@@ -3,13 +3,17 @@ package bifrost
 var (
 	// providers is a map of the supported providers
 	providers = map[string]string{
-		"s3":  "Simple Storage Service",
-		"gcs": "Google Cloud Storage",
+		"pinata": "Pinata Cloud Storage",
+		"s3":     "Simple Storage Service",
+		"gcs":    "Google Cloud Storage",
 	}
 )
 
 // Misc constants
 const (
+
+	// PinataCloud is the identifier of the Pinata Cloud storage
+	PinataCloud = "pinata"
 	// SimpleStorageService is the identifier of the S3 provider
 	SimpleStorageService = "s3"
 	// GoogleCloudStorage is the identifier of the Google Cloud Storage provider
@@ -41,6 +45,9 @@ const (
 
 	// ErrFileOperationFailed is returned when a file operation fails.
 	ErrFileOperationFailed = "file operation failed"
+
+	// ErrClientError is returned when the client returns an error.
+	ErrClientError = "client error"
 )
 
 // Options constants.
@@ -55,4 +62,6 @@ const (
 	OptContentType = "content-type"
 	// Metadata is the option to set the metadata of the file.
 	OptMetadata = "metadata"
+	// OptPinata is the option to set the pinataOptions
+	OptPinata = "pinataOptions"
 )

@@ -33,13 +33,39 @@ type BridgeConfig struct {
 	PublicRead bool
 	// UseAsync enables asynchronous operations with go routines.
 	UseAsync bool
+	// PinataJWT is the JWT generated for your Pinata cloud account
+	PinataJWT string
 }
 
 type RainbowBridge interface {
+	/*
+		UploadFile uploads a file to the provider storage and returns an error if one occurs.
+
+		Note: for some providers, UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
+	*/
 	UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error)
+  /*
+		UploadMultiFile uploads mutliple files to the provider storage and returns an error if one occurs.
+
+		Note: for some providers, UploadMultiFile requires that a default bucket be set in bifrost.BridgeConfig.
+	*/
 	UploadMultiFile(requests []*types.UploadFileRequest) ([]*types.UploadedFile, error)
+	/*
+		Disconnect closes the provider client connection and returns an error if one occurs.
+
+		Disconnect should only be called when the connection is no longer needed.
+	*/
 	Disconnect() error
+	// Config returns the provider configuration.
 	Config() *types.BridgeConfig
+	// IsConnected returns true if there is an active connection to the provider.
+	IsConnected() bool
+	/*
+		UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
+
+		Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
+	*/
+	UploadFolder(path string, options map[string]interface{}) ([]*types.UploadedFile, error)
 }
 
 // BifrostError is the interface for errors returned by Bifrost.

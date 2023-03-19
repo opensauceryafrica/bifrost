@@ -12,4 +12,6 @@ const (
 	OptContentType = "content-type"
 	// Metadata is the option to set the metadata of the file.
 	OptMetadata = "metadata"
+	// OptPinata is the option to set the pinataOptions
+	OptPinata = "pinataOptions"
 )
