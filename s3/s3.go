@@ -2,8 +2,10 @@ package s3
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -19,7 +21,25 @@ UploadFile uploads a file to S3 and returns an error if one occurs.
 
 Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (s *SimpleStorageService) UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error) {
+func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.UploadedFile, error) {
+	// marshal interface to bytes
+	fileBytes, err := json.Marshal(fileFace)
+	if err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+
+	// unmarshal bytes to struct
+	var bFile types.File
+	if err := json.Unmarshal(fileBytes, &bFile); err != nil {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("argument must be of type bifrost.File"),
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+
 	if !s.IsConnected() {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("no active S3 client"),
@@ -34,14 +54,14 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 		defer cancel()
 	}
 	// verify that file exists
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(bFile.Path); os.IsNotExist(err) {
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("file does not exist: %s", path),
+			Err:       fmt.Errorf("file does not exist: %s", bFile.Path),
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 	// open file
-	file, err := os.Open(path)
+	file, err := os.Open(bFile.Path)
 	if err != nil {
 		return nil, &errors.BifrostError{
 			Err:       err,
@@ -51,9 +71,14 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 	// close file
 	defer file.Close()
 
+	// ensure filename
+	if bFile.Filename == "" {
+		bFile.Filename = filepath.Base(bFile.Path)
+	}
+
 	var params *s3.PutObjectInput = &s3.PutObjectInput{
 		Bucket: aws.String(s.DefaultBucket),
-		Key:    aws.String(filename),
+		Key:    aws.String(bFile.Filename),
 		Body:   file,
 	}
 	// check the bridge config for default acl settings
@@ -62,7 +87,7 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 		params.ACL = awsTypes.ObjectCannedACLPublicRead
 	}
 	// configure upload options
-	for k, v := range options {
+	for k, v := range bFile.Options {
 		switch k {
 		// check the options map for acl settings
 		case config.OptACL:
@@ -97,7 +122,7 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 	// head object details
 	obj, err := s.Client.HeadObject(ctx, &s3.HeadObjectInput{
 		Bucket: aws.String(s.DefaultBucket),
-		Key:    aws.String(filename),
+		Key:    aws.String(bFile.Filename),
 	})
 	if err != nil {
 		return nil, &errors.BifrostError{
@@ -106,17 +131,17 @@ func (s *SimpleStorageService) UploadFile(path, filename string, options map[str
 		}
 	}
 	return &types.UploadedFile{
-		Name:           filename,
+		Name:           bFile.Filename,
 		Bucket:         s.DefaultBucket,
-		Path:           path,
-		Preview:        fmt.Sprintf(config.URLSimpleStorageService, s.DefaultBucket, s.Region, filename),
+		Path:           bFile.Path,
+		Preview:        fmt.Sprintf(config.URLSimpleStorageService, s.DefaultBucket, s.Region, bFile.Path),
 		Size:           obj.ContentLength,
 		ProviderObject: obj,
 	}, nil
 }
 
 // UploadMultiFile
-func (s *SimpleStorageService) UploadMultiFile(requests []*types.UploadFileRequest) ([]*types.UploadedFile, error) {
+func (s *SimpleStorageService) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
 }
 
@@ -140,7 +165,9 @@ Disconnect closes the S3 connection and returns an error if one occurs.
 Disconnect should only be called when the connection is no longer needed.
 */
 func (s *SimpleStorageService) Disconnect() error {
-	s.Client = nil
+	if s.IsConnected() {
+		s.Client = nil
+	}
 	return nil
 }
 
@@ -154,6 +181,6 @@ func (s *SimpleStorageService) IsConnected() bool {
 
 	Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (s *SimpleStorageService) UploadFolder(path string, options map[string]interface{}) ([]*types.UploadedFile, error) {
+func (s *SimpleStorageService) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
 }

@@ -1,5 +1,6 @@
 package types
 
+// PinataAuthResponse is the response from Pinata Cloud when authenticating.
 type PinataAuthResponse struct {
 	Error struct {
 		Reason  string `json:"reason"`
@@ -8,6 +9,7 @@ type PinataAuthResponse struct {
 	Message string `json:"message"`
 }
 
+// PinataPinFileResponse is the response from Pinata Cloud when pinning a file.
 type PinataPinFileResponse struct {
 	IpfsHash  string `json:"IpfsHash"`
 	Timestamp string `json:"Timestamp"`

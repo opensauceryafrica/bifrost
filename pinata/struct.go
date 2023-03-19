@@ -1,6 +1,6 @@
 package pinata
 
-import "github.com/opensaucerer/bifrost/request"
+import "github.com/opensaucerer/bifrost/shared/request"
 
 // PinataCloud is the Pinata IPFS struct
 type PinataCloud struct {

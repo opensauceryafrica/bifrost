@@ -24,6 +24,8 @@ type UploadedFile struct {
 	// CID is the content identifier for the file.
 	// This is only implemented by some providers (e.g. Pinata Cloud).
 	CID string
+	// Error is the error returned by the provider. This is only used for async operations and multi file uploads.
+	Error error
 }
 
 // Param is the struct used to pass parameters to request methods.
@@ -49,12 +51,20 @@ type ParamFile struct {
 	Key string
 }
 
-// UploadFileRequest is the request struct for Uploading Multiple Files.
-type UploadFileRequest struct {
-	// Path is the path to the file in memory.
-	Path string
-	// Filename is the name to store the file in cloud platform.
-	Filename string
-	// Options
-	Options map[string]interface{}
+// MultiFile is the struct for uploading multiple files.
+// Along with options, you can also set global options that will be applied to all files.
+type MultiFile struct {
+	Files []File `json:"files"`
+	// GlobalOptions is a map of options to store along with all the files.
+	// say 3 of 4 files need to share the same option, you can set globally for those 3 files and set the 4th file's option separately, bifrost won't override the option
+	GlobalOptions map[string]interface{} `json:"global_options"`
+}
+
+type File struct {
+	// Path is the path to file.
+	Path string `json:"path"`
+	// Filename is the name to store the file as with the provider.
+	Filename string `json:"filename"`
+	// Options is a map of options to store along with each file.
+	Options map[string]interface{} `json:"options"`
 }

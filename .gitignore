@@ -1,3 +1,4 @@
 cmd/
 .env
-.env.example
+.env.*
+coverage.*
