@@ -48,3 +48,13 @@ type ParamFile struct {
 	// Key is the key to use for the file.
 	Key string
 }
+
+// UploadFileRequest is the request struct for Uploading Multiple Files.
+type UploadFileRequest struct {
+	// Path is the path to the file in memory.
+	Path string
+	// Filename is the name to store the file in cloud platform.
+	Filename string
+	// Options
+	Options map[string]interface{}
+}

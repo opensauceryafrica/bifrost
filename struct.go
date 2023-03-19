@@ -44,6 +44,12 @@ type RainbowBridge interface {
 		Note: for some providers, UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
 	*/
 	UploadFile(path, filename string, options map[string]interface{}) (*types.UploadedFile, error)
+  /*
+		UploadMultiFile uploads mutliple files to the provider storage and returns an error if one occurs.
+
+		Note: for some providers, UploadMultiFile requires that a default bucket be set in bifrost.BridgeConfig.
+	*/
+	UploadMultiFile(requests []*types.UploadFileRequest) ([]*types.UploadedFile, error)
 	/*
 		Disconnect closes the provider client connection and returns an error if one occurs.
 
