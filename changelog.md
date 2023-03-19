@@ -13,7 +13,7 @@
 
 ## Changed
 
-- Updated test cases across all currently spported providers
+- Updated test cases across all currently supported providers
 - Updated structs and interfaces as well as their documentation
 
 ## New
