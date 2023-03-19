@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -142,7 +143,65 @@ func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.Uploaded
 
 // UploadMultiFile
 func (s *SimpleStorageService) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
-	return nil, nil
+	// marshal interface to bytes
+	multiBytes, err := json.Marshal(multiFace)
+	if err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+
+	// unmarshal bytes to struct
+	var multiFile types.MultiFile
+	if err := json.Unmarshal(multiBytes, &multiFile); err != nil {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("argument must be of type bifrost.MultiFile"),
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+
+	if !s.IsConnected() {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("no active Google Cloud Storage client"),
+			ErrorCode: errors.ErrClientError,
+		}
+	}
+
+	if len(multiFile.Files) == 0 {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("no files to upload"),
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+
+	uploadedFiles := make([]*types.UploadedFile, 0, len(multiFile.Files))
+
+	// TODO: add concurrency when UseAsync is true
+	for _, file := range multiFile.Files {
+		if multiFile.GlobalOptions != nil {
+			// merge global options with file options
+			for k, v := range multiFile.GlobalOptions {
+				// don't override if file has option already
+				if _, ok := file.Options[k]; !ok {
+					file.Options[k] = v
+				}
+			}
+		}
+
+		uploadedFile, err := s.UploadFile(file)
+		if err != nil {
+			if s.EnableDebug {
+				// log failed file and continue
+				log.Printf("Upload for file at path %s failed with err: %s\n", file.Path, err.Error())
+			}
+			uploadedFiles = append(uploadedFiles, &types.UploadedFile{Error: err})
+			continue
+		}
+		uploadedFiles = append(uploadedFiles, uploadedFile)
+	}
+
+	return uploadedFiles, nil
 }
 
 // Config returns the s3 configuration.

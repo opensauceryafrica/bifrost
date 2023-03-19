@@ -4,7 +4,6 @@ Rainbow bridge for shipping your files to any cloud storage service.
 
 ![image](https://user-images.githubusercontent.com/59074379/226159115-1cfcb221-127f-4574-87ed-b74b4b2c4591.png)
 
-
 # Problem Statement
 
 You might just want to use 3 different cloud storage providers in your project. This means you'll need 3 different SDKs with 3 different implementations. That's just too much learning curve.
@@ -167,6 +166,46 @@ func main() {
 
 ```
 
+### Shipping multiple files to Amazon S3 via the rainbow bridge
+
+```go
+// Upload multiple files
+uploadedFiles, err := bridge.UploadMultiFile(bifrost.MultiFile{
+	Files: []bifrost.File{
+		{
+			Path:     "../shared/image/aand.png",
+			Filename: "a_and_ampersand.png",
+			Options: map[string]interface{}{
+				bifrost.OptMetadata: map[string]string{
+					"originalname": "aand.png",
+				},
+			},
+		},
+		{
+			Path:     "../shared/image/bifrost.webp",
+			Filename: "bifrost_bridge.webp",
+			Options: map[string]interface{}{
+				bifrost.OptMetadata: map[string]string{
+					"originalname": "bifrost.jpg",
+					"universe":     "Marvel",
+				},
+			},
+		},
+	},
+	GlobalOptions: map[string]interface{}{
+		bifrost.OptACL: bifrost.ACLPrivate,
+	},
+})
+if err != nil {
+	fmt.Println(err)
+	return
+}
+
+for _, file := range uploadedFiles {
+	fmt.Printf("Uploaded file: %s to %s\n", file.Name, file.Preview)
+}
+```
+
 ### Mount a rainbow bridge and ship a file to Pinata
 
 ```go
@@ -208,6 +247,49 @@ func main() {
 	fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 }
 
+```
+
+### Shipping multiple files to Pinata via the rainbow bridge
+
+```go
+// Upload multiple files
+uploadedFiles, err := bridge.UploadMultiFile(bifrost.MultiFile{
+	Files: []bifrost.File{
+		{
+			Path:     "../shared/image/hair.jpg",
+			Filename: "hair_of_opensaucerer.jpg",
+			Options: map[string]interface{}{
+				bifrost.OptMetadata: map[string]string{
+					"originalname": "hair.jpg",
+				},
+			},
+		},
+		{
+			Path:     "../shared/image/bifrost.webp",
+			Filename: "bifrost_bridge.webp",
+			Options: map[string]interface{}{
+				bifrost.OptMetadata: map[string]string{
+					"originalname": "bifrost.jpg",
+					"universe":     "Marvel",
+				},
+			},
+		},
+	},
+
+	GlobalOptions: map[string]interface{}{
+		bifrost.OptPinata: map[string]interface{}{
+			"cidVersion": 1,
+		},
+	},
+})
+if err != nil {
+	fmt.Println(err)
+	return
+}
+
+for _, file := range uploadedFiles {
+	fmt.Printf("Uploaded file: %s to %s\n", file.Name, file.Preview)
+}
 ```
 
 # Contributing

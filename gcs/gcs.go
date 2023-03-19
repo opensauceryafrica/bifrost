@@ -162,7 +162,6 @@ func (g *GoogleCloudStorage) UploadFile(fileFace interface{}) (*types.UploadedFi
 	Note: for some providers, UploadMultiFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
 func (g *GoogleCloudStorage) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
-
 	// marshal interface to bytes
 	multiBytes, err := json.Marshal(multiFace)
 	if err != nil {

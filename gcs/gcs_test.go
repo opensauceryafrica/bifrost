@@ -41,7 +41,7 @@ func TestGCS(t *testing.T) {
 	setup(t)
 	defer teardown()
 
-	t.Run("Tests Google Cloud Storage UploadFile method", func(t *testing.T) {
+	t.Run("Tests UploadFile method", func(t *testing.T) {
 		o, err := bridge.UploadFile(bifrost.File{
 			Path:     "../shared/image/aand.png",
 			Filename: "a_and_ampersand.png",
@@ -58,7 +58,7 @@ func TestGCS(t *testing.T) {
 		t.Logf("Uploaded file: %s to %s\n", o.Name, o.Preview)
 	})
 
-	t.Run("Tests Google Cloud Storage UploadMultiFile method", func(t *testing.T) {
+	t.Run("Tests UploadMultiFile method", func(t *testing.T) {
 		o, err := bridge.UploadMultiFile(bifrost.MultiFile{
 			Files: []bifrost.File{
 				{
@@ -92,7 +92,6 @@ func TestGCS(t *testing.T) {
 				},
 			},
 
-			// since we want both files to be public, we can set the global options rather than setting it for each file
 			// say 3 of 4 files need to share the same option, you can set globally for those 3 files and set the 4th file's option separately, bifrost won't override the option
 			GlobalOptions: map[string]interface{}{
 				bifrost.OptACL: bifrost.ACLPrivate,
