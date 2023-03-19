@@ -21,7 +21,7 @@ If you would like to contribute code to fix a bug, implement a new feature, or i
 5. Note importantly that your commit messages should be descriptive and follow the [semantic commit message format](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716).
 6. Make sure you have added the necessary tests for your changes.
 7. Run all the tests to assure nothing else was accidentally broken.
-8. Update the changelog.md file with a description of your changes/addition. The order of representation is that whereby your most recent changes/addition come first.
+8. Update the `changelog.md` file with a description of your changes/addition. The order of representation is that whereby your most recent changes/addition come first.
 9. Push your branch to your fork of the repository.
 10. Submit a pull request to the `main` branch of the Bifrost repository.
 11. Ensure that your pull request is descriptive and passes all status checks.
