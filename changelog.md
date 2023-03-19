@@ -3,7 +3,7 @@
 ## Changed
 
 - Refactored the entire package to use structs as input as opposed to an enumerated list of arguments.
-- Updated test cases across all currently spported providers
+- Updated test cases across all currently supported providers
 
 ## New
 
