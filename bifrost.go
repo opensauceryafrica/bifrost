@@ -1,4 +1,5 @@
-// package bifrost provides a rainbow bridge for shipping files to cloud storage services.
+/* package bifrost provides a rainbow bridge for shipping files to any cloud storage service.
+it's like bifrost from marvel comics, but for files. */
 package bifrost
 
 import (
@@ -9,13 +10,16 @@ import (
 	"strings"
 
 	"cloud.google.com/go/storage"
-	"github.com/aws/aws-sdk-go-v2/config"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	awss3 "github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/opensaucerer/bifrost/gcs"
 	"github.com/opensaucerer/biforst/gdrive"
+	"github.com/opensaucerer/bifrost/pinata"
 	bs3 "github.com/opensaucerer/bifrost/s3"
+	bconfig "github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
+	"github.com/opensaucerer/bifrost/shared/request"
 	"google.golang.org/api/option"
 )
 
@@ -68,7 +72,7 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 		// Just log a warning
 		if bc.EnableDebug {
 			// TODO: create a logger
-			log.Printf("No bucket specified for provider %s. This might cause errors or require you to specify a bucket for each operation.", providers[strings.ToLower(bc.Provider)])
+			log.Printf(errors.WARN+"WARN: "+errors.NONE+"No bucket specified for provider %s. This might cause errors or require you to specify a bucket for each operation.", providers[strings.ToLower(bc.Provider)])
 		}
 	}
 
@@ -80,6 +84,8 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 		return NewGoogleDriveStorage(bc), nil
 	case "gcs":
 		return newGoogleCloudStorage(bc)
+	case "pinata":
+		return newPinataCloud(bc)
 	default:
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("invalid provider: %s", bc.Provider),
@@ -87,6 +93,33 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 		}
 	}
 
+}
+
+// newPinataCloud returns a new client for Pinata Cloud.
+func newPinataCloud(g *BridgeConfig) (RainbowBridge, error) {
+	// TODO: add support for API key and API secret
+	if g.PinataJWT == "" {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("pinata JWT is required"),
+			ErrorCode: errors.ErrUnauthorized,
+		}
+	}
+
+	var p = pinata.PinataCloud{
+		PinataJWT:      g.PinataJWT,
+		Provider:       providers[strings.ToLower(g.Provider)],
+		DefaultTimeout: g.DefaultTimeout,
+		PublicRead:     g.PublicRead,
+		UseAsync:       g.UseAsync,
+		EnableDebug:    g.EnableDebug,
+		Client:         request.NewClient(bconfig.URLPinataAuth, g.PinataJWT, g.DefaultTimeout),
+	}
+	// authenticate with Pinata Cloud
+	if err := p.Preflight(); err != nil {
+		return nil, err
+	}
+	// return a new Pinata Cloud Storage Provider
+	return &p, nil
 }
 
 // newGoogleCloudStorage returns a new client for Google Cloud Storage.
@@ -112,6 +145,7 @@ func newGoogleCloudStorage(g *BridgeConfig) (RainbowBridge, error) {
 			}
 		}
 	}
+
 	// return a new Google Cloud Storage client
 	return &gcs.GoogleCloudStorage{
 		Provider:        providers[strings.ToLower(g.Provider)],
@@ -128,27 +162,27 @@ func newGoogleCloudStorage(g *BridgeConfig) (RainbowBridge, error) {
 
 // newSimpleStorageService returns a new client for AWS S3
 func newSimpleStorageService(g *BridgeConfig) (RainbowBridge, error) {
-	var client *s3.Client
+	var client *awss3.Client
 	if g.AccessKey != "" && g.SecretKey != "" {
 		creds := credentials.NewStaticCredentialsProvider(g.AccessKey, g.SecretKey, "")
-		cfg, err := config.LoadDefaultConfig(context.Background(), config.WithCredentialsProvider(creds), config.WithRegion(g.Region))
+		cfg, err := awsconfig.LoadDefaultConfig(context.Background(), awsconfig.WithCredentialsProvider(creds), awsconfig.WithRegion(g.Region))
 		if err != nil {
 			return nil, &errors.BifrostError{
 				Err:       err,
 				ErrorCode: errors.ErrUnauthorized,
 			}
 		}
-		client = s3.NewFromConfig(cfg)
+		client = awss3.NewFromConfig(cfg)
 	} else {
 		// Load AWS Shared Configuration
-		cfg, err := config.LoadDefaultConfig(context.TODO())
+		cfg, err := awsconfig.LoadDefaultConfig(context.TODO())
 		if err != nil {
 			return nil, &errors.BifrostError{
 				Err:       err,
 				ErrorCode: errors.ErrUnauthorized,
 			}
 		}
-		client = s3.NewFromConfig(cfg)
+		client = awss3.NewFromConfig(cfg)
 	}
 	return &bs3.SimpleStorageService{
 		Provider:      providers[strings.ToLower(g.Provider)],

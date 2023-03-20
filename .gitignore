@@ -1,1 +1,4 @@
 cmd/
+.env
+.env.*
+coverage.*
