@@ -1,6 +1,6 @@
 # Bifrost
 
-Rainbow bridge for shipping your files to any cloud storage service.
+Rainbow bridge for shipping your files to any cloud storage service with the same function calls.
 
 ![image](https://user-images.githubusercontent.com/59074379/226159115-1cfcb221-127f-4574-87ed-b74b4b2c4591.png)
 
