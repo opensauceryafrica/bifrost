@@ -2,25 +2,81 @@
 
 Rainbow bridge for shipping your files to any cloud storage service with the same function calls.
 
-![image](https://user-images.githubusercontent.com/59074379/226159115-1cfcb221-127f-4574-87ed-b74b4b2c4591.png)
+<img src="https://user-images.githubusercontent.com/59074379/226159115-1cfcb221-127f-4574-87ed-b74b4b2c4591.png" width="1000" />
+
+# Table of contents
+
+- [Bifrost](#bifrost)
+- [Problem Statement](#problem-statement)
+  - [Google Cloud Storage(GCS)](#google-cloud-storagegcs)
+  - [Pinata](#pinata)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Changelog](#changelog)
+- [Contributors](#contributors)
 
 # Problem Statement
+Many projects need to store files in the cloud, and different projects might use different cloud storage providers. Using different SDKs with different implementations for each provider can be tedious and time-consuming. Bifrost aims to simplify the process of working with multiple cloud storage providers by providing a consistent API for all of them. To better understand how Bifrost solves this problem, let's take a look at two separate code samples for GCS and Pinata using conventional means and how Bifrost eases the steps. 
 
-You might just want to use 3 different cloud storage providers in your project. This means you'll need 3 different SDKs with 3 different implementations. That's just too much learning curve.
 
-How about you ride with Thor on the Bifrost and easily transport your files to any cloud storage with the exact same function calls.
+## Google Cloud Storage(GCS)
+Without Bifrost, the process of uploading a file to GCS using the Google Cloud Storage client library for Go would typically involve the following steps:
+ ``` go
+package main
 
-# Installation
+import (
+	"context"
+	"fmt"
+	"io"
+	"log"
 
-```bash
-go get github.com/opensaucerer/bifrost
+	"cloud.google.com/go/storage"
+)
+
+func main() {
+	ctx := context.Background()
+
+	// create a client
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create client: %v", err)
+	}
+	defer client.Close()
+
+	// open the file you want to upload
+	file, err := os.Open("path/to/your/file")
+	if err != nil {
+		log.Fatalf("Failed to open file: %v", err)
+	}
+	defer file.Close()
+
+	// create a bucket object
+	bucket := client.Bucket("your-bucket-name")
+
+	// create an object handle
+	object := bucket.Object("destination/file/name")
+
+	// create a writer to upload the file
+	writer := object.NewWriter(ctx)
+
+	// copy the contents of the file to the object
+	if _, err := io.Copy(writer, file); err != nil {
+		log.Fatalf("Failed to upload file: %v", err)
+	}
+
+	// close the writer to finalize the upload
+	if err := writer.Close(); err != nil {
+		log.Fatalf("Failed to close writer: %v", err)
+	}
+
+	fmt.Println("File uploaded successfully!")
+}
+
 ```
-
-# Usage
-
-### Mounting a rainbow bridge to link with Google Cloud Storage
-
-```go
+With Bifrost, the above process can be simplified to the following steps:
+``` go
 package main
 
 import (
@@ -50,11 +106,6 @@ func main() {
 	defer bridge.Disconnect()
 	fmt.Printf("Connected to %s\n", bridge.Config().Provider)
 }
-```
-
-### Shipping a file to Google Cloud Storage via the rainbow bridge
-
-```go
 // Upload a file
 uploadedFile, err := bridge.UploadFile(bifrost.File{
 	Path:     "../shared/image/aand.png",
@@ -71,144 +122,89 @@ if err != nil {
 }
 fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 ```
+This Go code uploads a file named "aand.png" located at "../shared/image" to Google Cloud Storage via the Rainbow bridge.
 
-### Shipping multiple files to Google Cloud Storage via the rainbow bridge
-
-```go
-// Upload multiple files
-uploadedFiles, err := bridge.UploadMultiFile(bifrost.MultiFile{
-	Files: []bifrost.File{
-		{
-			Path:     "../shared/image/aand.png",
-			Filename: "a_and_ampersand.png",
-			Options: map[string]interface{}{
-				bifrost.OptMetadata: map[string]string{
-					"originalname": "aand.png",
-				},
-				bifrost.OptACL: bifrost.ACLPublicRead,
-			},
-		},
-		{
-			Path:     "../shared/image/hair.jpg",
-			Filename: "hair_of_opensaucerer.jpg",
-			Options: map[string]interface{}{
-				bifrost.OptMetadata: map[string]string{
-					"originalname": "hair.jpg",
-				},
-			},
-		},
-		{
-			Path:     "../shared/image/bifrost.webp",
-			Filename: "bifrost_bridge.webp",
-			Options: map[string]interface{}{
-				bifrost.OptMetadata: map[string]string{
-					"originalname": "bifrost.jpg",
-					"universe":     "Marvel",
-				},
-			},
-		},
-	},
-
-	// since we want both files to be public, we can set the global options rather than setting it for each file
-	// say 3 of 4 files need to share the same option, you can set globally for those 3 files and set the 4th file's option separately, bifrost won't override the option
-	GlobalOptions: map[string]interface{}{
-		bifrost.OptACL: bifrost.ACLPrivate,
-	},
-})
-if err != nil {
-	fmt.Println(err)
-	return
-}
-
-for _, file := range uploadedFiles {
-	fmt.Printf("Uploaded file: %s to %s\n", file.Name, file.Preview)
-}
-```
-
-### Mount a rainbow bridge and ship a file to Amazon S3
-
-```go
+## Pinata
+If you don't use Bifrost, the usual way of uploading a file to Pinata involves going through the following steps:
+``` go
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/opensaucerer/bifrost"
+	"io"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
+	"os"
 )
 
 func main() {
-	bridge, _ := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
-		DefaultBucket: "default-bucket",
-		Provider:      bifrost.SimpleStorageService,
-		AccessKey:     "access-key",
-		SecretKey:     "secret-key",
-		EnableDebug:   true,
-		PublicRead:    true,
-		Region: "ap-northeast-1",
-	})
-	defer bridge.Disconnect()
-	fmt.Printf("Connected to %s\n", bridge.Config().Provider)
-	// Upload a file
-	uploadedFile, err := bridge.UploadFile(bifrost.File{
-		Path:     "../shared/image/aand.png",
-		Filename: "a_and_ampersand.png",
-		Options: map[string]interface{}{
-			bifrost.OptMetadata: map[string]string{
-				"originalname": "aand.png",
-			},
-		},
-	})
+	// Set the API key and secret key
+	apiKey := "your-api-key"
+	secretApiKey := "your-secret-api-key"
+
+	// Open the file to be uploaded
+	file, err := os.Open("path/to/file")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error opening file:", err)
 		return
 	}
-	fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
+	defer file.Close()
+
+	// Prepare the request body
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("file", file.Name())
+	if err != nil {
+		fmt.Println("Error creating form file:", err)
+		return
+	}
+	_, err = io.Copy(part, file)
+	if err != nil {
+		fmt.Println("Error copying file:", err)
+		return
+	}
+	err = writer.Close()
+	if err != nil {
+		fmt.Println("Error closing writer:", err)
+		return
+	}
+
+	// Prepare the request
+	url := "https://api.pinata.cloud/pinning/pinFileToIPFS"
+	req, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return
+	}
+	req.Header.Add("Content-Type", writer.FormDataContentType())
+	req.Header.Add("pinata_api_key", apiKey)
+	req.Header.Add("pinata_secret_api_key", secretApiKey)
+
+	// Send the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response:", err)
+		return
+	}
+
+	// Print the response
+	fmt.Println(string(respBody))
 }
 
 ```
-
-### Shipping multiple files to Amazon S3 via the rainbow bridge
-
-```go
-// Upload multiple files
-uploadedFiles, err := bridge.UploadMultiFile(bifrost.MultiFile{
-	Files: []bifrost.File{
-		{
-			Path:     "../shared/image/aand.png",
-			Filename: "a_and_ampersand.png",
-			Options: map[string]interface{}{
-				bifrost.OptMetadata: map[string]string{
-					"originalname": "aand.png",
-				},
-			},
-		},
-		{
-			Path:     "../shared/image/bifrost.webp",
-			Filename: "bifrost_bridge.webp",
-			Options: map[string]interface{}{
-				bifrost.OptMetadata: map[string]string{
-					"originalname": "bifrost.jpg",
-					"universe":     "Marvel",
-				},
-			},
-		},
-	},
-	GlobalOptions: map[string]interface{}{
-		bifrost.OptACL: bifrost.ACLPrivate,
-	},
-})
-if err != nil {
-	fmt.Println(err)
-	return
-}
-
-for _, file := range uploadedFiles {
-	fmt.Printf("Uploaded file: %s to %s\n", file.Name, file.Preview)
-}
-```
-
-### Mount a rainbow bridge and ship a file to Pinata
-
-```go
+With Bifrost, the above process can be simplified to the following steps:
+``` go
 package main
 
 import (
@@ -249,48 +245,16 @@ func main() {
 
 ```
 
-### Shipping multiple files to Pinata via the rainbow bridge
-
-```go
-// Upload multiple files
-uploadedFiles, err := bridge.UploadMultiFile(bifrost.MultiFile{
-	Files: []bifrost.File{
-		{
-			Path:     "../shared/image/hair.jpg",
-			Filename: "hair_of_opensaucerer.jpg",
-			Options: map[string]interface{}{
-				bifrost.OptMetadata: map[string]string{
-					"originalname": "hair.jpg",
-				},
-			},
-		},
-		{
-			Path:     "../shared/image/bifrost.webp",
-			Filename: "bifrost_bridge.webp",
-			Options: map[string]interface{}{
-				bifrost.OptMetadata: map[string]string{
-					"originalname": "bifrost.jpg",
-					"universe":     "Marvel",
-				},
-			},
-		},
-	},
-
-	GlobalOptions: map[string]interface{}{
-		bifrost.OptPinata: map[string]interface{}{
-			"cidVersion": 1,
-		},
-	},
-})
-if err != nil {
-	fmt.Println(err)
-	return
-}
-
-for _, file := range uploadedFiles {
-	fmt.Printf("Uploaded file: %s to %s\n", file.Name, file.Preview)
-}
+# Installation
+To install the Bifrost package, run the following command in your terminal:
+```bash
+go get github.com/opensaucerer/bifrost
 ```
+# Usage
+If you want to learn more about how Bifrost is creating different methods to make it easier to use different cloud providers, you can follow these links: 
+- [Google Cloud Storage (GCS)](gcs\doc.md)
+- [Amazon S3](s3\doc.md)
+- [Pinata](pinata\doc.md)
 
 # Contributing
 
