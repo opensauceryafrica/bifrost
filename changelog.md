@@ -2,6 +2,9 @@
 
 ## Changed
 
+- added documentation links for each provider to the readme.
+- added `doc.md` files to each cloud service provider's package folder to the readme.
+- added a comparison of the conventional method with Bifrost's methods for uploading files to GCS and Pinata to the readme.
 - Refactored the entire package to use structs as input as opposed to an enumerated list of arguments.
 - Updated test cases across all currently supported providers
 
