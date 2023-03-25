@@ -2,28 +2,51 @@ package gdrive
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
 	"time"
+
+	"github.com/opensaucerer/bifrost/shared/errors"
+	"github.com/opensaucerer/bifrost/shared/types"
+	"google.golang.org/api/drive/v3"
 )
 
-func (g *GoogleDriveStorage) UploadFile(path, filename string, options map[string]interface{}) (types.UploadFile, error) {
+func (g *GoogleDriveStorage) UploadFile(fileFace interface{}) (*types.UploadedFile, error) {
+
+	fileBytes, err := json.Marshal(fileFace)
+	if err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+
+	// unmarshal bytes to struct
+	var bFile types.File
+	if err := json.Unmarshal(fileBytes, &bFile); err != nil {
+		return nil, &errors.BifrostError{
+			Err:       fmt.Errorf("argument must be of type bifrost.File"),
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
 	var ctx context.Context
 	var cancel context.CancelFunc
 	ctx = context.Background()
 
-	if s.DefaultTimeout > 0 {
-		ctx, cancel = context.WithTimeout(ctx, time.Duration(s.DefaultTimeout)*time.Second)
+	if g.DefaultTimeout > 0 {
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(g.DefaultTimeout)*time.Second)
 		defer cancel()
 	}
 	// verify that file exists
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(bFile.Path); os.IsNotExist(err) {
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("file does not exist: %s", path),
+			Err:       fmt.Errorf("file does not exist: %s", bFile.Path),
 			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 	// open file
-	file, err := os.Open(path)
+	file, err := os.Open(bFile.Path)
 	if err != nil {
 		return nil, &errors.BifrostError{
 			Err:       err,
@@ -33,7 +56,7 @@ func (g *GoogleDriveStorage) UploadFile(path, filename string, options map[strin
 	// close file
 	defer file.Close()
 
-	srv, err := drive.NewService(ctx, option.WithHTTPClient(g.Client))
+	srv, err := drive.NewService(ctx)
 	if err != nil {
 		return nil, &errors.BifrostError{
 			Err:       err,
@@ -41,26 +64,38 @@ func (g *GoogleDriveStorage) UploadFile(path, filename string, options map[strin
 		}
 	}
 
-	f, err := srv.Files.Create(file).Do()
+	upload := &drive.File{Name: file.Name()}
+
+	f, err := srv.Files.Create(upload).Do()
 	if err != nil {
-		return nil, &error.BifrostError{
-			Err: err, 
+		return nil, &errors.BifrostError{
+			Err:       err,
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
 
 	return &types.UploadedFile{
-		Name:           f.Name,
-		Path:           path,
-		Size:           f.Size,
-		URL:            f.IconLink,
+		Name: f.Name,
+		Path: bFile.Path,
+		Size: f.Size,
+		URL:  f.IconLink,
 	}, nil
 }
 
+func (g *GoogleDriveStorage) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
+	return nil, nil
+}
+
+func (g *GoogleDriveStorage) IsConnected() bool {
+	return false
+}
+
+func (g *GoogleDriveStorage) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
+	return nil, nil
+}
+
 func (g *GoogleDriveStorage) Disconnect() error {
-	if g.Client != nil {
-		return g.Client.Close()
-	}
+
 	return nil
 }
 

@@ -1,5 +1,8 @@
-/* package bifrost provides a rainbow bridge for shipping files to any cloud storage service.
-it's like bifrost from marvel comics, but for files. */
+/*
+	package bifrost provides a rainbow bridge for shipping files to any cloud storage service.
+
+it's like bifrost from marvel comics, but for files.
+*/
 package bifrost
 
 import (
@@ -14,12 +17,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	awss3 "github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/opensaucerer/bifrost/gcs"
-	"github.com/opensaucerer/biforst/gdrive"
+	"github.com/opensaucerer/bifrost/gdrive"
 	"github.com/opensaucerer/bifrost/pinata"
-	bs3 "github.com/opensaucerer/bifrost/s3"
-	bconfig "github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/request"
+	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
 )
 
@@ -81,7 +83,7 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 	case "s3":
 		return newSimpleStorageService(bc)
 	case "gdrive":
-		return NewGoogleDriveStorage(bc), nil
+		return newGoogleDriveStorage(bc)
 	case "gcs":
 		return newGoogleCloudStorage(bc)
 	case "pinata":
@@ -195,34 +197,49 @@ func newSimpleStorageService(g *BridgeConfig) (RainbowBridge, error) {
 	}, nil
 }
 
-func newGoogleDriveStoage(g *BridgeConfig) (rainbowBridge, error) {
-	var client *http.Client
-	var token oauth2.Token{}
-	var err error
-	if g.CredentialsFile != nil {
-		f, err := os..Open(g.CredentialsFile)
-		if err != nil {
-			return nil, &BifrostError{
-				Err: err,
-				ErrorCode: errors.ErrUnauthorized,
-			}
-		}
+func newGoogleDriveStorage(g *BridgeConfig) (RainbowBridge, error) {
+	var (
+		service *drive.Service
+		err     error
+	)
 
-		defer f.Close()
-		err = json.NewDecoder(f).Decode(tok)
-		if err != nil {
-			return nil, &BifrostError{
-				Err: err,
-				ErrorCode: errors.ErrUnauthorized,
-			}
+	service, err = drive.NewService(context.TODO())
+	if err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrUnauthorized,
 		}
 	}
 
-	client = config.Client(ctx, tok)
+	// if g.DefaultBucket = " " {
+	// 	f, err := os.Open(g.CredentialsFile)
+	// 	if err != nil {
+	// 		return nil, &errors.BifrostError{
+	// 			Err:       err,
+	// 			ErrorCode: errors.ErrUnauthorized,
+	// 		}
+	// 	}
+
+	// 	defer f.Close()
+	// 	err = json.NewDecoder(f).Decode(token)
+	// 	if err != nil {
+	// 		return nil, &errors.BifrostError{
+	// 			Err:       err,
+	// 			ErrorCode: errors.ErrUnauthorized,
+	// 		}
+	// 	}
+	// }
+
+	// client = config.Client(context.Background(), token)
+
 	return &gdrive.GoogleDriveStorage{
-		Client: client,
-		PublicRead: g.PublicRead,
-		EnableDebug: g.EnableDebug,
+		Client:         service,
+		PublicRead:     g.PublicRead,
+		EnableDebug:    g.EnableDebug,
 		DefaultTimeout: g.DefaultTimeout,
 	}, nil
 }
+
+// func newGoogleDriveStoage(g *BridgeConfig) (rainbowBridge, error) {
+// 	return &gdrive.GoogleDriveStorage{}, nil
+// }

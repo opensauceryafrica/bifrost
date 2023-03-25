@@ -1,6 +1,8 @@
 package gdrive
 
-import "net/http"
+import (
+	"google.golang.org/api/drive/v3"
+)
 
 type GoogleDriveStorage struct {
 	Provider string
@@ -11,9 +13,9 @@ type GoogleDriveStorage struct {
 
 	Project string
 
-	DefaultTimeout string
+	DefaultTimeout int64
 
-	Client *http.Client
+	Client *drive.Service
 
 	EnableDebug bool
 
