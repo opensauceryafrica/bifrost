@@ -9,4 +9,6 @@ const (
 	SimpleStorageService = "s3"
 	// GoogleCloudStorage is the identifier of the Google Cloud Storage provider
 	GoogleCloudStorage = "gcs"
+	// GoogleDriveStorage is the identifier of the Google Drive Storage proivder
+	GoogleDriveStorage = "gds"
 )

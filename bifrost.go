@@ -211,27 +211,6 @@ func newGoogleDriveStorage(g *BridgeConfig) (RainbowBridge, error) {
 		}
 	}
 
-	// if g.DefaultBucket = " " {
-	// 	f, err := os.Open(g.CredentialsFile)
-	// 	if err != nil {
-	// 		return nil, &errors.BifrostError{
-	// 			Err:       err,
-	// 			ErrorCode: errors.ErrUnauthorized,
-	// 		}
-	// 	}
-
-	// 	defer f.Close()
-	// 	err = json.NewDecoder(f).Decode(token)
-	// 	if err != nil {
-	// 		return nil, &errors.BifrostError{
-	// 			Err:       err,
-	// 			ErrorCode: errors.ErrUnauthorized,
-	// 		}
-	// 	}
-	// }
-
-	// client = config.Client(context.Background(), token)
-
 	return &gdrive.GoogleDriveStorage{
 		Client:         service,
 		PublicRead:     g.PublicRead,
@@ -239,7 +218,3 @@ func newGoogleDriveStorage(g *BridgeConfig) (RainbowBridge, error) {
 		DefaultTimeout: g.DefaultTimeout,
 	}, nil
 }
-
-// func newGoogleDriveStoage(g *BridgeConfig) (rainbowBridge, error) {
-// 	return &gdrive.GoogleDriveStorage{}, nil
-// }
