@@ -24,5 +24,6 @@ If you would like to contribute code to fix a bug, implement a new feature, or i
 8. Update the `changelog.md` file with a description of your changes/addition. The order of representation is that whereby your most recent changes/addition come first.
 9. Push your branch to your fork of the repository.
 10. Submit a pull request to the `main` branch of the Bifrost repository.
-11. Ensure that your pull request is descriptive and passes all status checks.
-12. Pat yourself on the back and wait for your pull request to be reviewed and merged.
+11. Remember to link your pull request with the issue you created for it.
+12. Ensure that your pull request is descriptive and passes all status checks.
+13. Pat yourself on the back and wait for your pull request to be reviewed and merged.
