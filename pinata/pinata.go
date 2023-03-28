@@ -132,6 +132,7 @@ func (p *PinataCloud) UploadFile(fileFace interface{}) (*types.UploadedFile, err
 		ProviderObject: obj,
 		Name:           filepath.Base(bFile.Path),
 		Path:           bFile.Path,
+		URL:            fmt.Sprintf(config.URLPinataGateway, obj.IpfsHash),
 	}, nil
 }
 

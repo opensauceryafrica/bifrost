@@ -138,6 +138,7 @@ func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.Uploaded
 		Preview:        fmt.Sprintf(config.URLSimpleStorageService, s.DefaultBucket, s.Region, bFile.Filename),
 		Size:           obj.ContentLength,
 		ProviderObject: obj,
+		URL:            fmt.Sprintf(config.URLSimpleStorageService, s.DefaultBucket, s.Region, bFile.Filename),
 	}, nil
 }
 
