@@ -21,7 +21,7 @@ Rainbow bridge for shipping your files to any cloud storage service with the sam
 # Problem Statement
 Many projects need to store files in the cloud and different projects might use different cloud storage providers or, sometimes, multiple cloud providers all at once. Using different SDKs with different implementations for each provider can be tedious and time-consuming. Bifrost aims to simplify the process of working with multiple cloud storage providers by providing a consistent API for all of them. 
 
-To gain a better understanding of how Bifrost addresses this issue, let's take a ride with Thor and compare two different code samples for working with Google Cloud Storage and Pinata Cloud in a single project: one using a conventional approach and the other using Bifrost.
+To gain a better understanding of how Bifrost addresses this issue, let's take you on a ride with Thor by comparing two different code samples for working with Google Cloud Storage and Pinata Cloud in a single project: one using a conventional approach and the other using Bifrost.
 
 
 ## Google Cloud Storage using GCS SDK
@@ -81,7 +81,7 @@ func main() {
 ```
 
 ## Pinata Cloud using Pinata API
-If you don't use Bifrost, the usual way of uploading a file to Pinata involves going through the following steps:
+...and for Pinata Cloud, the usual way of uploading a file in Go would be something along the following steps:
 
 ``` go
 package main
@@ -161,9 +161,9 @@ func main() {
 
 ```
 
-Using both GCS and Pinata in a Go project can be challenging since they require you to learn how to use two different tools with separate implementation patterns. However, there is a solution: `Bifrost`. With Bifrost, you can mount bridges to the providers you want and use the same function to upload files through any of these bridges. This makes it much easier to work with multiple providers and streamlines the development process. 
+We can already see the challenges of the conventional methods since they require you to learn to use multiple packages with separate implementation patterns. Now this is why `Bifrost` comes in! With Bifrost, you can mount rainbow bridges to the providers you want and use the same set of functions to upload files through any of these mounted bridges. This makes it much easier to work with multiple providers and streamlines the development process to just one learning curve.
 
-Let's take a look at how Bifrost can solve this problem by showing how we can use it to rewrite the previous example in a more efficient way.
+Now, let's see how we can revamp the two samples above into something much more exciting with Bifrost.
 
 ## Using Bifrost
 
@@ -186,7 +186,7 @@ gcsBridge, _ := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
 	PublicRead:      true,
 })
 defer gcsBridge.Disconnect()
-fmt.Printf("Connected to %s\n", bridge.Config().Provider)
+fmt.Printf("Connected to %s\n", gcsBridge.Config().Provider)
 
 // mount a bridge to Pinata
 pinataBridge, _ := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
@@ -196,7 +196,7 @@ pinataBridge, _ := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
 	PublicRead:  true,
 })
 defer pinataBridge.Disconnect()
-fmt.Printf("Connected to %s\n", bridge.Config().Provider)
+fmt.Printf("Connected to %s\n", pinataBridge.Config().Provider)
 
 // upload a file to gcs using the bridge
 guf, _ := gcsBridge.UploadFile(bifrost.File{
@@ -208,7 +208,7 @@ guf, _ := gcsBridge.UploadFile(bifrost.File{
 		},
 	},
 })
-fmt.Printf("Uploaded to GCS file: %s to %s\n", guf.Name, guf.Preview)
+fmt.Printf("Uploaded file %s to GCS at: %s\n", guf.Name, guf.Preview)
 
 // upload a file to Pinata using the bridge
 puf, _ := bridge.UploadFile(bifrost.File{
@@ -223,7 +223,7 @@ puf, _ := bridge.UploadFile(bifrost.File{
 		},
 	},
 })
-fmt.Printf("Uploaded to Pinata file: %s to %s\n", puf.Name, puf.Preview)
+fmt.Printf("Uploaded file %s to Pinata at: %s\n", puf.Name, puf.Preview)
 ```
 
 The above example clearly demonstrates the speed, simplicity, and ease of use that Bifrost offers. Now you know what it feels like to ride with Thor!
