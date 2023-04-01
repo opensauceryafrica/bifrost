@@ -1,0 +1,29 @@
+name: ci
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  test_and_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version: './go.mod'
+          check-latest: true
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: Lint
+        run: |
+          go vet -v ./...
+          goimports -w -l .
+          go mod tidy

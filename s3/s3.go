@@ -237,9 +237,9 @@ func (s *SimpleStorageService) IsConnected() bool {
 }
 
 /*
-	UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
+UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
 
-	Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
+Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
 */
 func (s *SimpleStorageService) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
