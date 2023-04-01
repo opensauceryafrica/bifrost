@@ -23,7 +23,8 @@ jobs:
 
       - name: Set up dependencies
         run: |
-          go get golang.org/x/tools/cmd/goimports
+          go install golang.org/x/tools/cmd/goimports
+          which goimports
         
       - name: Lint
         run: |
