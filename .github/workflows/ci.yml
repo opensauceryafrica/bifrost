@@ -20,6 +20,10 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
+
+      - name: Set up dependencies
+        run: |
+          go get golang.org/x/tools/cmd/goimports
         
       - name: Lint
         run: |
