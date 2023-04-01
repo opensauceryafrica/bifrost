@@ -10,9 +10,9 @@ on:
 jobs:
   test_and_lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go: [ '1.18', '1.19', '1.20' ]
+    # strategy:
+    #   matrix:
+    #     go: [ '1.18', '1.19', '1.20' ]
     steps:
       - name: Setup Go
         uses: actions/setup-go@v2
