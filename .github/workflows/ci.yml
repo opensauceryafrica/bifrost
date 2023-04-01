@@ -10,20 +10,22 @@ on:
 jobs:
   test_and_lint:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [ '1.18', '1.19', '1.20' ]
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup go
         uses: actions/setup-go@v4
         with:
-          go-version: './go.mod'
-          check-latest: true
-
-      - name: Test
-        run: go test -v ./...
-
+          go-version: ${{ matrix.go }}
+        
       - name: Lint
         run: |
           go vet -v ./...
           goimports -w -l .
           go mod tidy
+
+      - name: Test
+        run: go test -v ./...
