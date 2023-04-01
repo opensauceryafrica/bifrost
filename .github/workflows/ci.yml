@@ -20,11 +20,7 @@ jobs:
           go-version: '^1.16'
       - name: Check code
         uses: actions/checkout@v2
-      - name: Install goimports
-        run: |
-          go get golang.org/x/tools/cmd/goimports
-          export PATH=${PATH}:`go env GOPATH`/bin
-      - run: goimports -w .
+
       - name: Run go mod tidy on all modules
         run: find . -name go.mod -execdir go mod tidy \;
       # If there are any diffs from goimports or go mod tidy, fail.
@@ -56,7 +52,6 @@ jobs:
         
       - name: Lint
         run: |
-          goimports -w -l .
           go vet -v ./...
           go mod tidy
 
