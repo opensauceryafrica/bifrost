@@ -27,8 +27,8 @@ jobs:
         
       - name: Lint
         run: |
+          ~/go/bin/goimports -w -l .
           go vet -v ./...
-          goimports -w -l .
           go mod tidy
 
       - name: Test
