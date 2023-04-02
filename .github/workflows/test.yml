@@ -70,7 +70,7 @@ jobs:
       - name: Run Test
         uses: actions/checkout@v2
       - run: |
-            mkdir -p cmd
+            mkdir -p ~/cmd
             echo '${{ secrets.CREDENTIALS_FILE }}' > ~/cmd/keys.json
             go test -v ./...
         env:
