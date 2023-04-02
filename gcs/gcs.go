@@ -156,10 +156,10 @@ func (g *GoogleCloudStorage) UploadFile(fileFace interface{}) (*types.UploadedFi
 }
 
 /*
-	UploadMultiFile uploads mutliple files to the provider storage and returns an error if one occurs. If any of the uploads fail, the error is appended
-	to the []UploadedFile.Error and also logged when debug is enabled while the rest of the uploads continue.
+UploadMultiFile uploads mutliple files to the provider storage and returns an error if one occurs. If any of the uploads fail, the error is appended
+to the []UploadedFile.Error and also logged when debug is enabled while the rest of the uploads continue.
 
-	Note: for some providers, UploadMultiFile requires that a default bucket be set in bifrost.BridgeConfig.
+Note: for some providers, UploadMultiFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
 func (g *GoogleCloudStorage) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
 	// marshal interface to bytes
@@ -255,9 +255,9 @@ func (g *GoogleCloudStorage) IsConnected() bool {
 }
 
 /*
-	UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
+UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
 
-	Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
+Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
 */
 func (g *GoogleCloudStorage) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
