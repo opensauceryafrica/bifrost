@@ -9,15 +9,6 @@ on:
 
 jobs:
   build:
-    env:
-        API_KEY: ${{ secrets.API_KEY }}
-        API_SECRET: ${{ secrets.API_SECRET }}
-        GOOGLE_BUCKET_NAME: ${{ secrets.GOOGLE_BUCKET_NAME }}
-        AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
-        AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        CREDENTIALS_FILE_PATH: ${{ secrets.CREDENTIALS_FILE_PATH }}
-        PINATA_JWT: ${{ secrets.PINATA_JWT }}
         
     runs-on: ubuntu-latest
     # strategy:
@@ -81,3 +72,12 @@ jobs:
       - name: Check code
         uses: actions/checkout@v2
       - run: go test -v ./...
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          GOOGLE_BUCKET_NAME: ${{ secrets.GOOGLE_BUCKET_NAME }}
+          AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          CREDENTIALS_FILE_PATH: ${{ secrets.CREDENTIALS_FILE_PATH }}
+          PINATA_JWT: ${{ secrets.PINATA_JWT }}
