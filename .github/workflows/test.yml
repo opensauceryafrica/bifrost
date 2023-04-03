@@ -68,8 +68,8 @@ jobs:
 
       - name: Run test
         run: |
-          mkdir -p ~/cmd
-          echo '${{ secrets.CREDENTIALS_FILE }}' > ${{ secrets.CREDENTIALS_FILE_PATH }}
+          mkdir -p cmd
+          echo '${{ secrets.CREDENTIALS_FILE }}' > cmd/keys.json
           go test -v ./...
         env:
           API_KEY: ${{ secrets.API_KEY }}

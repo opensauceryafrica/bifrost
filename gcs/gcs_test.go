@@ -1,8 +1,9 @@
 package gcs_test
 
 import (
-	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/opensaucerer/bifrost"
@@ -13,13 +14,13 @@ var (
 	err    error
 
 	GOOGLE_BUCKET_NAME = os.Getenv("GOOGLE_BUCKET_NAME")
-	// get full file path and join with os.Getenv("CREDENTIALS_FILE_PATH")
-	CREDENTIALS_FILE_PATH = os.Getenv("CREDENTIALS_FILE_PATH")
+
+	_, currFile, _, _ = runtime.Caller(0)
+
+	CREDENTIALS_FILE_PATH = filepath.Join(filepath.Join(filepath.Dir(currFile), "../"), os.Getenv("CREDENTIALS_FILE_PATH"))
 )
 
 func setup(t *testing.T) {
-
-	log.Println(os.Getwd())
 
 	bridge, err = bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
 		DefaultBucket:   GOOGLE_BUCKET_NAME,
