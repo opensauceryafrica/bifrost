@@ -27,3 +27,16 @@ If you would like to contribute code to fix a bug, implement a new feature, or i
 11. Remember to link your pull request with the issue you created for it.
 12. Ensure that your pull request is descriptive and passes all status checks.
 13. Pat yourself on the back and wait for your pull request to be reviewed and merged.
+
+## Becoming a Collaborator (Maintainer)
+
+To become a collborator on Bifrost means getting added to the list of those with direct access to the repository. This means you can, sometimes (not at all times), make direct push to the repistory without having to go through the pull request route.
+But since this grants delicate access, it is important that you meet some certain criterias. These include but might be limited to...
+
+- proven experience in the field of software engineering
+- proven experience working with the language this package is written in
+- proven track of following the laid down rules of this project
+- a good track record of contribution, adaptation, and communication on this project
+- and, of course, a good record of dedication to the project's cause.
+
+Note however that we can't have to many collaborators, which means you might meet this criterias but still not get the role. Likewise, it is possible that you be relieve of your collaborator role if the team notices consistent unavailability. We understand that open source can be tasking and we won't aim to pressure you much more than you can handle but would still love the project to go on by allowing others the chance of sustainable development.
