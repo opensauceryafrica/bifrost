@@ -1,12 +1,12 @@
 package types
 
-// UploadedFile is the struct returned by the UploadFile function.
+// UploadedFile is the struct representing a completed file/files upload.
 type UploadedFile struct {
 	// Name is the name of the file.
 	Name string
 	// Bucket is the bucket the file was uploaded to.
 	Bucket string
-	// Local path is the path to the file.
+	// Path is the local path to the file.
 	Path string
 	// Size is the size of the file in bytes.
 	Size int64
@@ -32,9 +32,11 @@ type UploadedFile struct {
 type Param struct {
 	// Files is a list of files to upload.
 	Files []ParamFile
-	Data  []ParamData
+	// Data is a list of data to upload along with the files.
+	Data []ParamData
 }
 
+// ParamData is the struct for uploading data along with files in a multipart request.
 type ParamData struct {
 	// Key is the key to use for the data.
 	Key string
@@ -42,6 +44,7 @@ type ParamData struct {
 	Value string
 }
 
+// ParamFile is the struct for uploading a single file in a multipart request.
 type ParamFile struct {
 	// Name is the name of the file.
 	Name string
@@ -54,12 +57,14 @@ type ParamFile struct {
 // MultiFile is the struct for uploading multiple files.
 // Along with options, you can also set global options that will be applied to all files.
 type MultiFile struct {
+	// Files is a list of files to upload.
 	Files []File `json:"files"`
 	// GlobalOptions is a map of options to store along with all the files.
 	// say 3 of 4 files need to share the same option, you can set globally for those 3 files and set the 4th file's option separately, bifrost won't override the option
 	GlobalOptions map[string]interface{} `json:"global_options"`
 }
 
+// File is the struct for uploading a single file.
 type File struct {
 	// Path is the path to file.
 	Path string `json:"path"`

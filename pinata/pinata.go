@@ -132,6 +132,7 @@ func (p *PinataCloud) UploadFile(fileFace interface{}) (*types.UploadedFile, err
 		ProviderObject: obj,
 		Name:           filepath.Base(bFile.Path),
 		Path:           bFile.Path,
+		URL:            fmt.Sprintf(config.URLPinataGateway, obj.IpfsHash),
 	}, nil
 }
 
@@ -209,9 +210,9 @@ func (p *PinataCloud) IsConnected() bool {
 }
 
 /*
-	UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
+UploadFolder uploads a folder to the provider storage and returns an error if one occurs.
 
-	Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
+Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
 */
 func (p *PinataCloud) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil

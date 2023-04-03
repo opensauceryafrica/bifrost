@@ -7,6 +7,9 @@
 
 ## New
 
+- added documentation links for each provider to the readme.
+- added `doc.md` files to each cloud service provider's package folder to the readme.
+- added a comparison of the conventional method with Bifrost's methods for uploading files to GCS and Pinata to the readme.
 - Added support for `UploadMultiFiles` function to all currently supported providers.
 
 # v0.0.5
