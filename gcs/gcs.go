@@ -1,3 +1,4 @@
+// Bifrost interface for Google Cloud Storage
 package gcs
 
 import (

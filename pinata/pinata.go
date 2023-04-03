@@ -1,3 +1,4 @@
+// Bifrost interface for Pinata Cloud
 package pinata
 
 import (

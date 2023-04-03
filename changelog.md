@@ -7,6 +7,7 @@
 
 ## New
 
+- added GitHub flow to build the package and run the test files
 - added documentation links for each provider to the readme.
 - added `doc.md` files to each cloud service provider's package folder to the readme.
 - added a comparison of the conventional method with Bifrost's methods for uploading files to GCS and Pinata to the readme.
