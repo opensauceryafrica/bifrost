@@ -1,4 +1,5 @@
-/* package bifrost
+/*
+	package bifrost
 
 provides a rainbow bridge for shipping files to any cloud storage service.
 
@@ -20,6 +21,8 @@ import (
 	"github.com/opensaucerer/bifrost/gcs"
 	"github.com/opensaucerer/bifrost/gdrive"
 	"github.com/opensaucerer/bifrost/pinata"
+	bs3 "github.com/opensaucerer/bifrost/s3"
+	bconfig "github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/request"
 	"google.golang.org/api/drive/v3"
