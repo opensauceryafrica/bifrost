@@ -1,7 +1,8 @@
-/*
-	package bifrost provides a rainbow bridge for shipping files to any cloud storage service.
+/* package bifrost
 
-it's like bifrost from marvel comics, but for files.
+provides a rainbow bridge for shipping files to any cloud storage service.
+
+It's like bifrost from marvel comics, but for files.
 */
 package bifrost
 

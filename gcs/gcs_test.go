@@ -2,6 +2,8 @@ package gcs_test
 
 import (
 	"os"
+	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/opensaucerer/bifrost"
@@ -11,8 +13,11 @@ var (
 	bridge bifrost.RainbowBridge
 	err    error
 
-	GOOGLE_BUCKET_NAME    = os.Getenv("GOOGLE_BUCKET_NAME")
-	CREDENTIALS_FILE_PATH = os.Getenv("CREDENTIALS_FILE_PATH")
+	GOOGLE_BUCKET_NAME = os.Getenv("GOOGLE_BUCKET_NAME")
+
+	_, currFile, _, _ = runtime.Caller(0)
+
+	CREDENTIALS_FILE_PATH = filepath.Join(filepath.Join(filepath.Dir(currFile), "../"), os.Getenv("CREDENTIALS_FILE_PATH"))
 )
 
 func setup(t *testing.T) {

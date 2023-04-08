@@ -1,3 +1,4 @@
+// Bifrost interface for Simple Storage Service (S3)
 package s3
 
 import (
