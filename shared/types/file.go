@@ -1,5 +1,7 @@
 package types
 
+import "errors"
+
 // UploadedFile is the struct representing a completed file/files upload.
 type UploadedFile struct {
 	// Name is the name of the file.
@@ -64,6 +66,19 @@ type MultiFile struct {
 	GlobalOptions map[string]interface{} `json:"global_options"`
 }
 
+// Validate validates the MultiFile struct.
+func (m *MultiFile) Validate() error {
+	if len(m.Files) == 0 {
+		return errors.New("no files to upload")
+	}
+	for _, file := range m.Files {
+		if err := file.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // File is the struct for uploading a single file.
 type File struct {
 	// Path is the path to file.
@@ -72,4 +87,12 @@ type File struct {
 	Filename string `json:"filename"`
 	// Options is a map of options to store along with each file.
 	Options map[string]interface{} `json:"options"`
+}
+
+// Validate validates the File struct.
+func (f *File) Validate() error {
+	if f.Path == "" {
+		return errors.New("file.Path is required")
+	}
+	return nil
 }

@@ -42,6 +42,14 @@ func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.Uploaded
 		}
 	}
 
+	// validate struct
+	if err := bFile.Validate(); err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrInvalidParameters,
+		}
+	}
+
 	if !s.IsConnected() {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("no active S3 client"),
@@ -163,17 +171,18 @@ func (s *SimpleStorageService) UploadMultiFile(multiFace interface{}) ([]*types.
 		}
 	}
 
+	// validate struct
+	if err := multiFile.Validate(); err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrInvalidParameters,
+		}
+	}
+
 	if !s.IsConnected() {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("no active Google Cloud Storage client"),
 			ErrorCode: errors.ErrClientError,
-		}
-	}
-
-	if len(multiFile.Files) == 0 {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("no files to upload"),
-			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 
@@ -197,7 +206,7 @@ func (s *SimpleStorageService) UploadMultiFile(multiFace interface{}) ([]*types.
 				// log failed file and continue
 				log.Printf("Upload for file at path %s failed with err: %s\n", file.Path, err.Error())
 			}
-			uploadedFiles = append(uploadedFiles, &types.UploadedFile{Error: err})
+			uploadedFiles = append(uploadedFiles, &types.UploadedFile{Error: err, Name: file.Filename, Path: file.Path})
 			continue
 		}
 		uploadedFiles = append(uploadedFiles, uploadedFile)

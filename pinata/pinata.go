@@ -37,6 +37,14 @@ func (p *PinataCloud) UploadFile(fileFace interface{}) (*types.UploadedFile, err
 		}
 	}
 
+	// validate struct
+	if err := bFile.Validate(); err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrInvalidParameters,
+		}
+	}
+
 	if !p.IsConnected() {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("no active Pinata client"),
@@ -239,17 +247,18 @@ func (p *PinataCloud) UploadMultiFile(multiFace interface{}) ([]*types.UploadedF
 		}
 	}
 
+	// validate struct
+	if err := multiFile.Validate(); err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrInvalidParameters,
+		}
+	}
+
 	if !p.IsConnected() {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("no active Google Cloud Storage client"),
 			ErrorCode: errors.ErrClientError,
-		}
-	}
-
-	if len(multiFile.Files) == 0 {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("no files to upload"),
-			ErrorCode: errors.ErrBadRequest,
 		}
 	}
 
@@ -273,7 +282,7 @@ func (p *PinataCloud) UploadMultiFile(multiFace interface{}) ([]*types.UploadedF
 				// log failed file and continue
 				log.Printf("Upload for file at path %s failed with err: %s\n", file.Path, err.Error())
 			}
-			uploadedFiles = append(uploadedFiles, &types.UploadedFile{Error: err})
+			uploadedFiles = append(uploadedFiles, &types.UploadedFile{Error: err, Name: file.Filename, Path: file.Path})
 			continue
 		}
 		uploadedFiles = append(uploadedFiles, uploadedFile)
