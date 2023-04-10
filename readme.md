@@ -19,15 +19,16 @@ Rainbow bridge for shipping your files to any cloud storage service with the sam
 - [Contributors](#contributors)
 
 # Problem Statement
-Many projects need to store files in the cloud and different projects might use different cloud storage providers or, sometimes, multiple cloud providers all at once. Using different SDKs with different implementations for each provider can be tedious and time-consuming. Bifrost aims to simplify the process of working with multiple cloud storage providers by providing a consistent API for all of them. 
+
+Many projects need to store files in the cloud and different projects might use different cloud storage providers or, sometimes, multiple cloud providers all at once. Using different SDKs with different implementations for each provider can be tedious and time-consuming. Bifrost aims to simplify the process of working with multiple cloud storage providers by providing a consistent API for all of them.
 
 To gain a better understanding of how Bifrost addresses this issue, let's take you on a ride with Thor by comparing two different code samples for working with Google Cloud Storage and Pinata Cloud in a single project: one using a conventional approach and the other using Bifrost.
 
-
 ## Google Cloud Storage using GCS SDK
+
 Without Bifrost, the process of uploading a file to GCS using the Google Cloud Storage client library for Go would typically involve the following steps:
 
- ``` go
+```go
 package main
 
 import (
@@ -81,9 +82,10 @@ func main() {
 ```
 
 ## Pinata Cloud using Pinata API
+
 ...and for Pinata Cloud, the usual way of uploading a file in Go would be something along the following steps:
 
-``` go
+```go
 package main
 
 import (
@@ -167,14 +169,14 @@ Now, let's see how we can revamp the two samples above into something much more 
 
 ## Using Bifrost
 
-``` go
+```go
 package main
 
 import (
 	"fmt"
 	"os"
 	"github.com/opensaucerer/bifrost"
-) 
+)
 
 // mount a bridge to gcs
 gcsBridge, _ := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
@@ -229,32 +231,39 @@ fmt.Printf("Uploaded file %s to Pinata at: %s\n", puf.Name, puf.Preview)
 The above example clearly demonstrates the speed, simplicity, and ease of use that Bifrost offers. Now you know what it feels like to ride with Thor!
 
 # Installation
+
 To install the Bifrost package, run the following command in your terminal:
+
 ```bash
 go get github.com/opensaucerer/bifrost
 ```
 
 # Usage
-If you want to learn more about how Bifrost is creating different methods to make it easier to use different cloud providers, you can follow these links: 
+
+If you want to learn more about how Bifrost is creating different methods to make it easier to use different cloud providers, you can follow these links:
+
 - [Google Cloud Storage (GCS)](gcs\doc.md)
 - [Amazon S3](s3\doc.md)
 - [Pinata Cloud](pinata\doc.md)
 
+# Variants
+
+Bifrost also exists in other forms and languages and you are free to start a new variant of bifrost in any other form or language of your choice. For now, below are the know variants of bifrost.
+
+[x] [Bifrost CLI](https://github.com/showbaba/bifrost-cli)
+[x] [Bifrost in Python](https://github.com/opensaucerer/pyfrost)
 
 # Contributing
 
 Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide](./contributing.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to Bifrost.
 
-
 # License
 
 Bifrost is [MIT licensed](./LICENSE).
 
-
 # Changelog
 
 See [changelog](./changelog.md) for more details.
-
 
 # Contributors
 
