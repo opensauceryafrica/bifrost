@@ -250,8 +250,8 @@ If you want to learn more about how Bifrost is creating different methods to mak
 
 Bifrost also exists in other forms and languages and you are free to start a new variant of bifrost in any other form or language of your choice. For now, below are the know variants of bifrost.
 
-[x] [Bifrost CLI](https://github.com/showbaba/bifrost-cli)
-[x] [Bifrost in Python](https://github.com/opensaucerer/pyfrost)
+- [x] [Bifrost CLI](https://github.com/showbaba/bifrost-cli)
+- [x] [Bifrost in Python](https://github.com/opensaucerer/pyfrost)
 
 # Contributing
 
