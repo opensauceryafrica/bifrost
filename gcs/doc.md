@@ -4,13 +4,34 @@ Welcome to the Bifrost documentation for Google Cloud Storage (GCS)! This guide 
 ## Overview
 Google Cloud Storage is a popular cloud storage service that allows you to store and access your data on Google's infrastructure. Bifrost provides a simple and intuitive way to upload files to GCS without having to write complex code.
 
+## Prerequisites
+Before you can start using Bifrost to upload files to Google Cloud Storage, you'll need to make sure you have the following:
+- A Google Cloud account with GCS access
+- A GCS bucket to upload files to
+- Google Cloud SDK installed on your local machine
+- Bifrost installed on your local machine
+
+### Steps:
+#### Create a GCS bucket
+1. Login to your Google Cloud account and navigate to the GCS console
+2. Click on the "Create bucket" button and follow the prompts to create a new bucket
+_Note the name of your bucket as you will need it later_
+
+#### Set up Google Cloud credentials
+1. Create a new service account by navigating to the IAM & Admin console and selecting "Service accounts" from the left-hand menu
+2. Click on the "Create Service Account" button and follow the prompts to create a new service account
+3. Once you have created the service account, navigate to the "Keys" tab and click on the "Create Key" button
+4. Select "JSON" as the key type and download the JSON key file
+_Note the path to your JSON key file as you will need it later_
+
+#### Install Google Cloud SDK
+1. Download and install the Google Cloud SDK from the official website
+2. Follow the prompts to set up the SDK on your local machine
+3. Authenticate the SDK using the command `gcloud auth login`
+
 ## Mounting a Bifrost Bridge to GCS
-Before you can use Bifrost with GCS, you need to mount a Bifrost bridge to your GCS account. Here are the steps:
-1. Create a new project on the [Google Cloud Console](https://console.cloud.google.com) if you haven't already.
-2. Go to the [IAM & Admin](https://console.cloud.google.com/iam-admin) page and create a new service account with "Storage Object Creator" and "Storage Object Viewer" roles.
-3. Download the service account's JSON key file and save it to a secure location.
-4. Install Bifrost using: ```go get github.com/bifrost-cloud/bifrost```
-5. Initialize a new Bifrost client and mount a GCS bridge using the following code:
+1. Install Bifrost using: ```go get github.com/bifrost-cloud/bifrost```
+2. Initialize a new Bifrost client and mount a GCS bridge using the following code:
 ```go
 package main
 
