@@ -7,6 +7,8 @@
 
 ## New
 
+- added variants section to the readme.
+- added validations for input parameters
 - added GitHub flow to build the package and run the test files
 - added documentation links for each provider to the readme.
 - added `doc.md` files to each cloud service provider's package folder to the readme.

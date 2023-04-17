@@ -28,4 +28,7 @@ const (
 
 	// ErrClientError is returned when the client returns an error.
 	ErrClientError = "client error"
+
+	// ErrInvalidParameters is returned when the parameters are invalid.
+	ErrInvalidParameters = "invalid parameters"
 )
