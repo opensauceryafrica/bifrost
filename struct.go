@@ -54,22 +54,10 @@ type Error interface {
 }
 
 // PinataPinFileResponse is the response from Pinata Cloud when pinning a file.
-type PinataPinFileResponse types.PinataPinFileResponse
+type PinataPinFileResponse = types.PinataPinFileResponse
 
 // MultiFile is the struct for uploading multiple files.
 // Along with options, you can also set global options that will be applied to all files.
-type MultiFile struct {
-	Files []File `json:"files"`
-	// GlobalOptions is a map of options to store along with all the files.
-	// say 3 of 4 files need to share the same option, you can set globally for those 3 files and set the 4th file's option separately, bifrost won't override the option
-	GlobalOptions map[string]interface{} `json:"global_options"`
-}
+type MultiFile = types.MultiFile
 
-type File struct {
-	// Path is the path to file.
-	Path string `json:"path"`
-	// Filename is the name to store the file as with the provider.
-	Filename string `json:"filename"`
-	// Options is a map of options to store along with each file.
-	Options map[string]interface{} `json:"options"`
-}
+type File = types.File
