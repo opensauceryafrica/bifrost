@@ -60,4 +60,5 @@ type PinataPinFileResponse = types.PinataPinFileResponse
 // Along with options, you can also set global options that will be applied to all files.
 type MultiFile = types.MultiFile
 
+// File is the struct for uploading a single file.
 type File = types.File
