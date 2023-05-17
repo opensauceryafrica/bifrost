@@ -8,7 +8,6 @@ Google Cloud Storage is a popular cloud storage service that allows you to store
 Before you can start using Bifrost to upload files to Google Cloud Storage, you'll need to make sure you have the following:
 - A Google Cloud account with GCS access
 - A GCS bucket to upload files to
-- Google Cloud SDK installed on your local machine
 - Bifrost installed on your local machine
 
 ### Steps:
@@ -23,11 +22,6 @@ _Note the name of your bucket as you will need it later_
 3. Once you have created the service account, navigate to the "Keys" tab and click on the "Create Key" button
 4. Select "JSON" as the key type and download the JSON key file
 _Note the path to your JSON key file as you will need it later_
-
-#### Install Google Cloud SDK
-1. Download and install the Google Cloud SDK from the official website
-2. Follow the prompts to set up the SDK on your local machine
-3. Authenticate the SDK using the command `gcloud auth login`
 
 ## Mounting a Bifrost Bridge to GCS
 1. Install Bifrost using: ```go get github.com/bifrost-cloud/bifrost```
@@ -63,7 +57,7 @@ func main() {
 	fmt.Printf("Connected to %s\n", bridge.Config().Provider)
 }
 ```
-And that's it! You have now mounted a Bifrost bridge to your GCS account and can start uploading files using Bifrost.
+And that's it! You have now mounted a Bifrost bridge to your GCS account and can start uploading files via this bridge.
 
 ## Shipping a file to Google Cloud Storage via the rainbow bridge
 Now that you have mounted a Bifrost bridge to GCS, you can use Bifrost to upload files to GCS using the following code:
@@ -84,7 +78,7 @@ if err != nil {
 }
 fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 ```
-As you can see, uploading a file to GCS using Bifrost is as simple as calling the UploadFile method on the Bifrost client with the name of the bucket, the path to the file on your local machine, and the name of the file on GCS.
+As you can see, uploading a file to GCS using Bifrost is as simple as calling the UploadFile method on the Bifrost client with the path to the file on your local machine, and the name of the file on GCS.
 
 ## Shipping multiple files to Google Cloud Storage via the rainbow bridge
 If you want to upload multiple files using Bifrost with GCS, you can use the UploadMultiFile method provided by the GCS bridge in Bifrost. Here is an example code snippet:
@@ -142,6 +136,7 @@ for _, file := range uploadedFiles {
 
 ## Additional Resources
 - [Google Cloud Storage Documentation](https://cloud.google.com/storage/docs)
-- [Bifrost GitHub Repository](https://github.com/opensaucerer/bifrost)
+- [Setting up GCS](https://cloud.google.com/storage/docs/creating-buckets)
+- [Setting up gcloud CLI](https://cloud.google.com/sdk/docs/install)
 
-We hope you found this guide helpful in using Bifrost with GCS. If you have any questions or feedback, please don't hesitate to reach out to us!
+We hope you found this guide helpful in using Bifrost with GCS. If you have any questions or feedback, please don't hesitate to open an [issue](https://github.com/opensaucerer/bifrost/issues)!
