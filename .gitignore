@@ -2,3 +2,4 @@ cmd/
 .env
 .env.*
 coverage.*
+.vscode

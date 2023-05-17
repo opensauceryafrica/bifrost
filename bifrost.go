@@ -32,7 +32,7 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 	if bc == nil {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("config is nil"),
-			ErrorCode: errors.ErrBadRequest,
+			ErrorCode: errors.ErrInvalidConfig,
 		}
 	}
 
@@ -41,7 +41,7 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 	if t.Elem().Kind() != reflect.Struct {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("invalid config type: %s", t.Elem().Kind()),
-			ErrorCode: errors.ErrBadRequest,
+			ErrorCode: errors.ErrInvalidConfig,
 		}
 	}
 
@@ -49,7 +49,7 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 	if t.Elem().Name() != bridgeConfigType {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("invalid config type: %s", t.Elem().Name()),
-			ErrorCode: errors.ErrBadRequest,
+			ErrorCode: errors.ErrInvalidConfig,
 		}
 	}
 
@@ -57,7 +57,7 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 	if bc.Provider == "" {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("no provider specified"),
-			ErrorCode: errors.ErrBadRequest,
+			ErrorCode: errors.ErrInvalidProvider,
 		}
 	}
 
@@ -65,7 +65,7 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 	if _, ok := providers[strings.ToLower(bc.Provider)]; !ok {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("invalid provider: %s", bc.Provider),
-			ErrorCode: errors.ErrBadRequest,
+			ErrorCode: errors.ErrInvalidProvider,
 		}
 	}
 
