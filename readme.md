@@ -242,9 +242,9 @@ go get github.com/opensaucerer/bifrost
 
 If you want to learn more about how Bifrost is creating different methods to make it easier to use different cloud providers, you can follow these links:
 
-- [Google Cloud Storage (GCS)](gcs\doc.md)
-- [Amazon S3](s3\doc.md)
-- [Pinata Cloud](pinata\doc.md)
+- [Google Cloud Storage (GCS)](gcs/doc.md)
+- [Amazon S3](s3/doc.md)
+- [Pinata Cloud](pinata/doc.md)
 
 # Variants
 
