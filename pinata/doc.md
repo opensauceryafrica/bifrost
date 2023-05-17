@@ -7,15 +7,8 @@ Pinata Cloud is a powerful decentralized cloud storage platform that enables use
 ## Prerequisites
 Before you can start using Bifrost to upload files to Pinata Cloud, you'll need to make sure you have the following:
 - A Pinata Cloud account with API access
-- A Pinata Cloud API key and API secret
+- A Pinata Cloud JWT (we hope to add support for secret/key soon)
 - Bifrost installed on your local machine
-
-### Steps:
-#### Create a Pinata Cloud API key
-1. Sign up for a Pinata Cloud account if you haven't already
-2. Go to the API Keys page and create a new API key
-3. Download the API key's JSON file and save it to a secure location
-_Note the name of your bucket as you will need it later_
 
 ## Mount a Bifrost bridge to Pinata
 1. Install Bifrost using: ```go get github.com/bifrost-cloud/bifrost```
@@ -38,7 +31,7 @@ pinataBridge, _ := bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
 defer pinataBridge.Disconnect()
 fmt.Printf("Connected to %s\n", pinataBridge.Config().Provider)
 ```
-And just like that, you've mounted a Bifrost bridge to your Pinata Cloud account and can start uploading files using Bifrost!
+And that's it! You have now mounted a Bifrost bridge to your Pinata account and can start uploading files via this bridge.
 
 ## Shipping a file to Pinata Cloud via the rainbow bridge
 Uploading a file to Pinata Cloud with Bifrost is just as easy. Here's how:
@@ -64,7 +57,7 @@ Uploading a file to Pinata Cloud with Bifrost is just as easy. Here's how:
 }
 
 ```
-As you can see, uploading a file to Pinata Cloud using Bifrost is as simple as calling the UploadFile method on the Bifrost client with the name of the pin, the path to the file on your local machine, and the name of the file on Pinata Cloud.
+As you can see, uploading a file to Pinata Cloud using Bifrost is as simple as calling the UploadFile method on the Bifrost client with the path to the file on your local machine and the name to give the file on Pinata Cloud, and any other metatadata via the `Options` field
 
 ## Uploading Multiple Files to Pinata Cloud with Bifrost
 Bifrost also provides a simple way to upload multiple files to Pinata Cloud. Here's an example code snippet:
@@ -111,6 +104,7 @@ for _, file := range uploadedFiles {
 
 ## Additional Resources
 - [Pinata Cloud Documentation](https://pinata.cloud/documentation)
-- [Bifrost GitHub Repository](https://github.com/bifrost-cloud/bifrost)
+- [What is decentralized storage](https://www.enterprisenetworkingplanet.com/data-center/decentralized-data-storage)
+- [What is IPFS](https://docs.ipfs.tech/concepts/what-is-ipfs)
 
-We hope this guide has been helpful in using Bifrost with Pinata Cloud. If you have any questions or feedback, please don't hesitate to reach out to us!
+We hope this guide has been helpful in using Bifrost with Pinata Cloud. If you have any questions or feedback, please don't hesitate to open an [issue](https://github.com/opensaucerer/bifrost/issues)!
