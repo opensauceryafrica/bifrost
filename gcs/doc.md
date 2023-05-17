@@ -78,7 +78,7 @@ if err != nil {
 }
 fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 ```
-As you can see, uploading a file to GCS using Bifrost is as simple as calling the UploadFile method on the Bifrost client with the path to the file on your local machine, and the name of the file on GCS.
+As you can see, uploading a file to GCS using Bifrost is as simple as calling the UploadFile method on the Bifrost client with the path to the file on your local machine and the name to give the file on GCS.
 
 ## Shipping multiple files to Google Cloud Storage via the rainbow bridge
 If you want to upload multiple files using Bifrost with GCS, you can use the UploadMultiFile method provided by the GCS bridge in Bifrost. Here is an example code snippet:
