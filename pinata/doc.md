@@ -37,25 +37,23 @@ And that's it! You have now mounted a Bifrost bridge to your Pinata account and 
 Uploading a file to Pinata Cloud with Bifrost is just as easy. Here's how:
 ``` go
 // Upload a file
-	uploadedFile, err := bridge.UploadFile(bifrost.File{
-		Path:     "../shared/image/aand.png",
-		Filename: "pinata_aand.png",
-		Options: map[string]interface{}{
-			bifrost.OptPinata: map[string]interface{}{
-				"cidVersion": 1,
-			},
-			bifrost.OptMetadata: map[string]string{
-				"originalname": "aand.png",
-			},
+uploadedFile, err := bridge.UploadFile(bifrost.File{
+	Path:     "../shared/image/aand.png",
+	Filename: "pinata_aand.png",
+	Options: map[string]interface{}{
+		bifrost.OptPinata: map[string]interface{}{
+			"cidVersion": 1,
 		},
-	})
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
+		bifrost.OptMetadata: map[string]string{
+			"originalname": "aand.png",
+		},
+	},
+})
+if err != nil {
+	fmt.Println(err)
+	return
 }
-
+fmt.Printf("Uploaded file: %s to %s\n", uploadedFile.Name, uploadedFile.Preview)
 ```
 As you can see, uploading a file to Pinata Cloud using Bifrost is as simple as calling the UploadFile method on the Bifrost client with the path to the file on your local machine and the name to give the file on Pinata Cloud, and any other metatadata via the `Options` field
 
