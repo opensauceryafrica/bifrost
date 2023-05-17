@@ -67,7 +67,7 @@ func main() {
 }
 
 ```
-And that's it! You have now mounted a Bifrost bridge to your Pinata account and can start uploading files via this bridge.
+And that's it! You have now mounted a Bifrost bridge to your AWS S3 account and can start uploading files via this bridge.
 
 ## Shipping multiple files to Amazon S3 via the rainbow bridge
 ```go
@@ -109,7 +109,8 @@ for _, file := range uploadedFiles {
 ```
 ## Additional Resources
 - [Amazon S3 Documentation](https://docs.aws.amazon.com/s3/index.html)
-- [Bifrost GitHub Repository](https://github.com/opensaucerer/bifrost)
+- [Setting up S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html)
+- [Setting up AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html)
 
 We hope you found this guide helpful in using Bifrost with Amazon S3. If you have any questions or feedback, please don't hesitate to open an [issue](https://github.com/opensaucerer/bifrost/issues)!
 
