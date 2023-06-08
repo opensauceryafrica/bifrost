@@ -255,7 +255,7 @@ Bifrost also exists in other forms and languages and you are free to start a new
 
 # Contributing
 
-Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide](./contributing.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to Bifrost.
+Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide](./contributing.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes to Bifrost.
 
 # License
 
