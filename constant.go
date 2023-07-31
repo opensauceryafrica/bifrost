@@ -29,6 +29,9 @@ const (
 	// GoogleCloudStorage is the identifier of the Google Cloud Storage provider
 	GoogleCloudStorage = "gcs"
 
+	//GoogleDriveStorage is the identifier of the Google drive provider
+	GoogleDriveStorage = "gdrive"
+
 	// BridgeConfigType is the type of the bridge configuration
 	bridgeConfigType = "BridgeConfig"
 )

@@ -1,4 +1,5 @@
-/* package bifrost
+/*
+	package bifrost
 
 provides a rainbow bridge for shipping files to any cloud storage service.
 
@@ -18,11 +19,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	awss3 "github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/opensaucerer/bifrost/gcs"
+	"github.com/opensaucerer/bifrost/gdrive"
 	"github.com/opensaucerer/bifrost/pinata"
 	bs3 "github.com/opensaucerer/bifrost/s3"
 	bconfig "github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/request"
+	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
 )
 
@@ -83,6 +86,8 @@ func NewRainbowBridge(bc *BridgeConfig) (RainbowBridge, error) {
 	switch bc.Provider {
 	case "s3":
 		return newSimpleStorageService(bc)
+	case "gdrive":
+		return newGoogleDriveStorage(bc)
 	case "gcs":
 		return newGoogleCloudStorage(bc)
 	case "pinata":
@@ -193,5 +198,27 @@ func newSimpleStorageService(g *BridgeConfig) (RainbowBridge, error) {
 		SecretKey:     g.SecretKey,
 		AccessKey:     g.AccessKey,
 		Client:        client,
+	}, nil
+}
+
+func newGoogleDriveStorage(g *BridgeConfig) (RainbowBridge, error) {
+	var (
+		service *drive.Service
+		err     error
+	)
+
+	service, err = drive.NewService(context.TODO())
+	if err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrUnauthorized,
+		}
+	}
+
+	return &gdrive.GoogleDriveStorage{
+		Client:         service,
+		PublicRead:     g.PublicRead,
+		EnableDebug:    g.EnableDebug,
+		DefaultTimeout: g.DefaultTimeout,
 	}, nil
 }
