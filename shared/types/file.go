@@ -1,6 +1,9 @@
 package types
 
-import "errors"
+import (
+	"errors"
+	"io"
+)
 
 // UploadedFile is the struct representing a completed file/files upload.
 type UploadedFile struct {
@@ -50,6 +53,8 @@ type ParamData struct {
 type ParamFile struct {
 	// Name is the name of the file.
 	Name string
+	// Handle is the handle to the file.
+	Handle io.Reader
 	// Path is the path to the file.
 	Path string
 	// Key is the key to use for the file.
@@ -81,6 +86,8 @@ func (m *MultiFile) Validate() error {
 
 // File is the struct for uploading a single file.
 type File struct {
+	// Handle is the handle to the file.
+	Handle io.Reader
 	// Path is the path to file.
 	Path string `json:"path"`
 	// Filename is the name to store the file as with the provider.
@@ -91,8 +98,14 @@ type File struct {
 
 // Validate validates the File struct.
 func (f *File) Validate() error {
-	if f.Path == "" {
-		return errors.New("file.Path is required")
+	if f.Path == "" && f.Handle == nil {
+		return errors.New("file.Path or file.Handle is required")
+	}
+	if f.Path != "" && f.Handle != nil {
+		return errors.New("only one of file.Path and file.Handle can be set")
+	}
+	if f.Filename == "" && f.Handle != nil {
+		return errors.New("file.Filename is required when file.Handle is set")
 	}
 	return nil
 }

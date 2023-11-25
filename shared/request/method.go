@@ -15,19 +15,22 @@ func (c *Client) PostForm(url string, params types.Param) ([]byte, error) {
 	writer := multipart.NewWriter(body)
 
 	for _, pf := range params.Files {
-		// open file
-		file, err := os.Open(pf.Path)
-		if err != nil {
-			return nil, err
+		if pf.Path != "" {
+			// open file
+			file, err := os.Open(pf.Path)
+			if err != nil {
+				return nil, err
+			}
+			pf.Handle = file
+			// close file
+			defer file.Close()
 		}
-		// close file
-		defer file.Close()
 
 		part, err := writer.CreateFormFile(pf.Key, pf.Name)
 		if err != nil {
 			return nil, err
 		}
-		_, err = io.Copy(part, file)
+		_, err = io.Copy(part, pf.Handle)
 		if err != nil {
 			return nil, err
 		}

@@ -22,4 +22,10 @@ const (
 
 	// URLSimpleStorageService is the public gateway for Simple Storage Service.
 	URLSimpleStorageService = "https://%s.s3.%s.amazonaws.com/%s"
+
+	//URLWasabiCloudStorage is the public gateway for Wasabi Cloud Storage.
+	URLWasabiCloudStorage = "https://%s.s3.%s.wasabisys.com/%s"
+
+	// URLWasabiEndpoint is the endpoint for Wasabi Cloud Storage.
+	URLWasabiEndpoint = "https://s3.%s.wasabisys.com"
 )

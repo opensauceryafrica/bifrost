@@ -1,3 +1,16 @@
+# v0.0.7
+
+## New
+
+- added support for uploading single and multiple files to Wasabi, AWS S3, Pinata, and Google Cloud Storage via the rainbow bridge using the UploadFile and UploadMultiFiles functions.
+- added support for uploading mutliple files to Wasabi Cloud Storage via the rainbow bridge using the UploadMultiFiles function.
+- added support for uploading single files to Wasabi Cloud Storage via the rainbow bridge using the UploadFile function.
+- added support for creating a rainbow bridge to link with Wasabi Cloud Storage.
+
+## Changed
+
+- Improved the `fileFace` and `multiFace` interfaces validation to use type assertions over struct unmarshalling.
+
 # v0.0.6
 
 ## Changed

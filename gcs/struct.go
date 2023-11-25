@@ -1,11 +1,14 @@
 package gcs
 
-import "cloud.google.com/go/storage"
+import (
+	"cloud.google.com/go/storage"
+	"github.com/opensaucerer/bifrost/shared/types"
+)
 
 // GoogleCloudStorage is the Google Cloud Storage struct
 type GoogleCloudStorage struct {
 	// Provider is the name of the cloud storage service to use.
-	Provider string
+	Provider types.Provider
 	// DefaultBucket is the Google Cloud Storage bucket to use for storage
 	DefaultBucket string
 	// CredentialsFile is the path to the Google Cloud Storage credentials file

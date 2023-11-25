@@ -1,11 +1,14 @@
 package pinata
 
-import "github.com/opensaucerer/bifrost/shared/request"
+import (
+	"github.com/opensaucerer/bifrost/shared/request"
+	"github.com/opensaucerer/bifrost/shared/types"
+)
 
 // PinataCloud is the Pinata IPFS struct
 type PinataCloud struct {
 	// Provider is the name of the cloud storage service to use.
-	Provider string
+	Provider types.Provider
 	// DefaultTimeout is the time-to-live for time-dependent pinata operations
 	DefaultTimeout int64
 	// PublicRead enables public read access to uploaded files.

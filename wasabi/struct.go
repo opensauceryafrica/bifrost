@@ -1,12 +1,12 @@
-package s3
+package wasabi
 
 import (
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	s3v1 "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/opensaucerer/bifrost/shared/types"
 )
 
-// SimpleStorageService is the S3 struct
-type SimpleStorageService struct {
+// WasabiCloudStorage is the S3 struct
+type WasabiCloudStorage struct {
 	// Provider is the name of the cloud storage service to use.
 	Provider types.Provider
 	// DefaultBucket is the S3 bucket to use for storage
@@ -22,7 +22,7 @@ type SimpleStorageService struct {
 	// UseAsync enables asynchronous operations with go routines.
 	UseAsync bool
 	// s3 client
-	Client *s3.Client
+	Client *s3v1.S3
 	// PublicRead enables public read access to uploaded files.
 	PublicRead bool
 	// SecretKey is the secret key for IAM authentication.

@@ -2,7 +2,7 @@ package types
 
 type BridgeConfig struct {
 	// Provider is the name of the cloud storage service to use.
-	Provider string
+	Provider Provider
 	// Zone is the service zone to use for storage.
 	// This is only implemented by some providers (e.g. S3).
 	Zone string

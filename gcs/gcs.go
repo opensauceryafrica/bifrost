@@ -3,7 +3,6 @@ package gcs
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -23,18 +22,10 @@ UploadFile uploads a file to Google Cloud Storage and returns an error if one oc
 Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
 func (g *GoogleCloudStorage) UploadFile(fileFace interface{}) (*types.UploadedFile, error) {
-	// marshal interface to bytes
-	fileBytes, err := json.Marshal(fileFace)
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrBadRequest,
-		}
-	}
 
-	// unmarshal bytes to struct
-	var bFile types.File
-	if err := json.Unmarshal(fileBytes, &bFile); err != nil {
+	// assert that the fileFace is of type bifrost.File
+	bFile, ok := fileFace.(types.File)
+	if !ok {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("argument must be of type bifrost.File"),
 			ErrorCode: errors.ErrBadRequest,
@@ -63,33 +54,38 @@ func (g *GoogleCloudStorage) UploadFile(fileFace interface{}) (*types.UploadedFi
 		ctx, cancel = context.WithTimeout(ctx, time.Duration(g.DefaultTimeout)*time.Second)
 		defer cancel()
 	}
-	// verify that file exists
-	if _, err := os.Stat(bFile.Path); os.IsNotExist(err) {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("file does not exist: %s", bFile.Path),
-			ErrorCode: errors.ErrBadRequest,
-		}
-	}
-	// open file
-	file, err := os.Open(bFile.Path)
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrFileOperationFailed,
-		}
-	}
-	// close file
-	defer file.Close()
 
-	// ensure filename
-	if bFile.Filename == "" {
-		bFile.Filename = filepath.Base(bFile.Path)
+	if bFile.Path != "" {
+		// verify that file exists
+		if _, err := os.Stat(bFile.Path); os.IsNotExist(err) {
+			return nil, &errors.BifrostError{
+				Err:       fmt.Errorf("file does not exist: %s", bFile.Path),
+				ErrorCode: errors.ErrBadRequest,
+			}
+		}
+		// open file
+		file, err := os.Open(bFile.Path)
+		if err != nil {
+			return nil, &errors.BifrostError{
+				Err:       err,
+				ErrorCode: errors.ErrFileOperationFailed,
+			}
+		}
+		// close file
+		defer file.Close()
+
+		bFile.Handle = file
+
+		// ensure filename
+		if bFile.Filename == "" {
+			bFile.Filename = filepath.Base(bFile.Path)
+		}
 	}
 
 	// Upload file to Google Cloud Storage
 	obj := g.Client.Bucket(g.DefaultBucket).Object(bFile.Filename)
 	wc := obj.NewWriter(ctx)
-	if _, err := io.Copy(wc, file); err != nil {
+	if _, err := io.Copy(wc, bFile.Handle); err != nil {
 		return nil, &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrFileOperationFailed,
@@ -171,18 +167,10 @@ to the []UploadedFile.Error and also logged when debug is enabled while the rest
 Note: for some providers, UploadMultiFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
 func (g *GoogleCloudStorage) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
-	// marshal interface to bytes
-	multiBytes, err := json.Marshal(multiFace)
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrBadRequest,
-		}
-	}
 
-	// unmarshal bytes to struct
-	var multiFile types.MultiFile
-	if err := json.Unmarshal(multiBytes, &multiFile); err != nil {
+	// assert that the multiFace is of type bifrost.File
+	multiFile, ok := multiFace.(types.MultiFile)
+	if !ok {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("argument must be of type bifrost.MultiFile"),
 			ErrorCode: errors.ErrBadRequest,
@@ -206,7 +194,7 @@ func (g *GoogleCloudStorage) UploadMultiFile(multiFace interface{}) ([]*types.Up
 
 	uploadedFiles := make([]*types.UploadedFile, 0, len(multiFile.Files))
 
-	// TODO: add concurrency when UseAsync is true
+	// @TODO: add concurrency when UseAsync is true
 	for _, file := range multiFile.Files {
 		if multiFile.GlobalOptions != nil {
 			// merge global options with file options

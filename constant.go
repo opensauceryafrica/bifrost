@@ -1,5 +1,7 @@
 package bifrost
 
+import "github.com/opensaucerer/bifrost/shared/types"
+
 /*
 At a point, you might wonder why we have some structs and constants duplicated in the root package and in the subpackages.
 This is because we want to keep the imports as simple as possible for the end user.
@@ -12,22 +14,24 @@ It's just a design choice, others might oppose it, that's fine. But keeping the 
 
 var (
 	// providers is a map of the supported providers
-	providers = map[string]string{
-		"pinata": "Pinata Cloud Storage",
-		"s3":     "Simple Storage Service",
-		"gcs":    "Google Cloud Storage",
+	providers = map[types.Provider]types.Provider{
+		PinataCloud:          "Pinata Cloud Storage",
+		SimpleStorageService: "Simple Storage Service",
+		GoogleCloudStorage:   "Google Cloud Storage",
+		WasabiCloudStorage:   "Wasabi Cloud Storage",
 	}
 )
 
 // Misc constants
 const (
-
+	// WasabiCloudStorage is the identifier of the Wasabi Cloud Storage provider
+	WasabiCloudStorage types.Provider = "wasabi"
 	// PinataCloud is the identifier of the Pinata Cloud storage
-	PinataCloud = "pinata"
+	PinataCloud types.Provider = "pinata"
 	// SimpleStorageService is the identifier of the S3 provider
-	SimpleStorageService = "s3"
+	SimpleStorageService types.Provider = "s3"
 	// GoogleCloudStorage is the identifier of the Google Cloud Storage provider
-	GoogleCloudStorage = "gcs"
+	GoogleCloudStorage types.Provider = "gcs"
 
 	// BridgeConfigType is the type of the bridge configuration
 	bridgeConfigType = "BridgeConfig"

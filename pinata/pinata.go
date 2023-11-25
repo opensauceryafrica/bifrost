@@ -19,18 +19,10 @@ import (
 UploadFile uploads a file to Pinata and returns an error if one occurs.
 */
 func (p *PinataCloud) UploadFile(fileFace interface{}) (*types.UploadedFile, error) {
-	// marshal interface to bytes
-	fileBytes, err := json.Marshal(fileFace)
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrBadRequest,
-		}
-	}
 
-	// unmarshal bytes to struct
-	var bFile types.File
-	if err := json.Unmarshal(fileBytes, &bFile); err != nil {
+	// assert that the fileFace is of type bifrost.File
+	bFile, ok := fileFace.(types.File)
+	if !ok {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("argument must be of type bifrost.File"),
 			ErrorCode: errors.ErrBadRequest,
@@ -51,24 +43,29 @@ func (p *PinataCloud) UploadFile(fileFace interface{}) (*types.UploadedFile, err
 			ErrorCode: errors.ErrClientError,
 		}
 	}
-	// verify that file exists
-	if _, err := os.Stat(bFile.Path); os.IsNotExist(err) {
-		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("file does not exist: %s", bFile.Path),
-			ErrorCode: errors.ErrBadRequest,
+
+	if bFile.Path != "" {
+		// verify that file exists
+		if _, err := os.Stat(bFile.Path); os.IsNotExist(err) {
+			return nil, &errors.BifrostError{
+				Err:       fmt.Errorf("file does not exist: %s", bFile.Path),
+				ErrorCode: errors.ErrBadRequest,
+			}
+		}
+
+		// build the request params
+		if bFile.Filename == "" {
+			bFile.Filename = filepath.Base(bFile.Path)
 		}
 	}
 
-	// build the request params
-	if bFile.Filename == "" {
-		bFile.Filename = filepath.Base(bFile.Path)
-	}
 	var param types.Param = types.Param{
 		Files: []types.ParamFile{
 			{
-				Path: bFile.Path,
-				Key:  "file",
-				Name: bFile.Filename,
+				Path:   bFile.Path,
+				Handle: bFile.Handle,
+				Key:    "file",
+				Name:   bFile.Filename,
 			},
 		},
 		Data: []types.ParamData{},
@@ -229,18 +226,10 @@ func (p *PinataCloud) UploadFolder(foldFace interface{}) ([]*types.UploadedFile,
 
 // UploadMultiFile
 func (p *PinataCloud) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
-	// marshal interface to bytes
-	multiBytes, err := json.Marshal(multiFace)
-	if err != nil {
-		return nil, &errors.BifrostError{
-			Err:       err,
-			ErrorCode: errors.ErrBadRequest,
-		}
-	}
 
-	// unmarshal bytes to struct
-	var multiFile types.MultiFile
-	if err := json.Unmarshal(multiBytes, &multiFile); err != nil {
+	// assert that the multiFace is of type bifrost.File
+	multiFile, ok := multiFace.(types.MultiFile)
+	if !ok {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("argument must be of type bifrost.MultiFile"),
 			ErrorCode: errors.ErrBadRequest,
@@ -264,7 +253,7 @@ func (p *PinataCloud) UploadMultiFile(multiFace interface{}) ([]*types.UploadedF
 
 	uploadedFiles := make([]*types.UploadedFile, 0, len(multiFile.Files))
 
-	// TODO: add concurrency when UseAsync is true
+	// @TODO: add concurrency when UseAsync is true
 	for _, file := range multiFile.Files {
 		if multiFile.GlobalOptions != nil {
 			// merge global options with file options

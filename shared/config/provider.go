@@ -11,4 +11,7 @@ const (
 
 	// GoogleCloudStorage is the identifier of the Google Cloud Storage provider
 	GoogleCloudStorage = "gcs"
+
+	// WasabiCloudStorage is the identifier of the Wasabi Cloud Storage provider
+	WasabiCloudStorage = "wasabi"
 )

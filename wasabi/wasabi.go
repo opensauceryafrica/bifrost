@@ -1,28 +1,27 @@
-// Bifrost interface for Simple Storage Service (S3)
-package s3
+// Bifrost interface for Wasabi Cloud Storage
+package wasabi
 
 import (
-	"context"
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	awsTypes "github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/opensaucerer/bifrost/shared/config"
 	"github.com/opensaucerer/bifrost/shared/errors"
 	"github.com/opensaucerer/bifrost/shared/types"
 )
 
 /*
-UploadFile uploads a file to S3 and returns an error if one occurs.
+UploadFile uploads a file to Wasabi and returns an error if one occurs.
 
 Note: UploadFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.UploadedFile, error) {
+func (w *WasabiCloudStorage) UploadFile(fileFace interface{}) (*types.UploadedFile, error) {
 
 	// assert that the fileFace is of type bifrost.File
 	bFile, ok := fileFace.(types.File)
@@ -41,19 +40,22 @@ func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.Uploaded
 		}
 	}
 
-	if !s.IsConnected() {
+	if !w.IsConnected() {
 		return nil, &errors.BifrostError{
-			Err:       fmt.Errorf("no active S3 client"),
+			Err:       fmt.Errorf("no active Wasabi client"),
 			ErrorCode: errors.ErrClientError,
 		}
 	}
-	var ctx context.Context
-	var cancel context.CancelFunc
-	ctx = context.Background()
-	if s.DefaultTimeout > 0 {
-		ctx, cancel = context.WithTimeout(ctx, time.Duration(s.DefaultTimeout)*time.Second)
-		defer cancel()
-	}
+	// @TODO: add context with timeout
+	// var ctx context.Context
+	// var cancel context.CancelFunc
+	// ctx = context.Background()
+	// if w.DefaultTimeout > 0 {
+	// 	ctx, cancel = context.WithTimeout(ctx, time.Duration(w.DefaultTimeout)*time.Second)
+	// 	defer cancel()
+	// }
+
+	var f io.ReadSeeker
 
 	if bFile.Path != "" {
 		// verify that file exists
@@ -74,23 +76,38 @@ func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.Uploaded
 		// close file
 		defer file.Close()
 
-		bFile.Handle = file
+		f = file
 
 		// ensure filename
 		if bFile.Filename == "" {
 			bFile.Filename = filepath.Base(bFile.Path)
 		}
+	} else {
+		// io.ReadSeeker requires that all the data be in memory and available to be seeked over, this is not ideal for large files but since it
+		// is required by the v1 of the aws sdk which is Wasabi compatible, we have to do it this way
+
+		// read the entire file into memory
+		data, err := io.ReadAll(bFile.Handle)
+		if err != nil {
+			return nil, &errors.BifrostError{
+				Err:       err,
+				ErrorCode: errors.ErrFileOperationFailed,
+			}
+		}
+
+		// create a new bytes reader
+		f = bytes.NewReader(data)
 	}
 
 	var params *s3.PutObjectInput = &s3.PutObjectInput{
-		Bucket: aws.String(s.DefaultBucket),
+		Bucket: aws.String(w.DefaultBucket),
 		Key:    aws.String(bFile.Filename),
-		Body:   bFile.Handle,
+		Body:   f,
 	}
 	// check the bridge config for default acl settings
-	if s.PublicRead {
+	if w.PublicRead {
 		// set public read permissions
-		params.ACL = awsTypes.ObjectCannedACLPublicRead
+		params.ACL = aws.String(s3.ObjectCannedACLPublicRead)
 	}
 	// configure upload options
 	for k, v := range bFile.Options {
@@ -100,9 +117,9 @@ func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.Uploaded
 			if v, ok := v.(string); ok {
 				switch v {
 				case config.ACLPublicRead:
-					params.ACL = awsTypes.ObjectCannedACLPublicRead
+					params.ACL = aws.String(s3.ObjectCannedACLPublicRead)
 				case config.ACLPrivate:
-					params.ACL = awsTypes.ObjectCannedACLPrivate
+					params.ACL = aws.String(s3.ObjectCannedACLPrivate)
 				}
 
 			}
@@ -114,20 +131,20 @@ func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.Uploaded
 		// set object metadata
 		case config.OptMetadata:
 			if v, ok := v.(map[string]string); ok {
-				params.Metadata = v
+				params.Metadata = aws.StringMap(v)
 			}
 		}
 	}
-	// Upload the file to S3
-	if _, err := s.Client.PutObject(ctx, params); err != nil {
+	// Upload the file to Wasabi
+	if _, err := w.Client.PutObject(params); err != nil {
 		return nil, &errors.BifrostError{
 			Err:       err,
 			ErrorCode: errors.ErrFileOperationFailed,
 		}
 	}
 	// head object details
-	obj, err := s.Client.HeadObject(ctx, &s3.HeadObjectInput{
-		Bucket: aws.String(s.DefaultBucket),
+	obj, err := w.Client.HeadObject(&s3.HeadObjectInput{
+		Bucket: aws.String(w.DefaultBucket),
 		Key:    aws.String(bFile.Filename),
 	})
 	if err != nil {
@@ -138,17 +155,17 @@ func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.Uploaded
 	}
 	return &types.UploadedFile{
 		Name:           bFile.Filename,
-		Bucket:         s.DefaultBucket,
+		Bucket:         w.DefaultBucket,
 		Path:           bFile.Path,
-		Preview:        fmt.Sprintf(config.URLSimpleStorageService, s.DefaultBucket, s.Region, bFile.Filename),
-		Size:           obj.ContentLength,
+		Preview:        fmt.Sprintf(config.URLWasabiCloudStorage, w.DefaultBucket, w.Region, bFile.Filename),
+		Size:           *obj.ContentLength,
 		ProviderObject: obj,
-		URL:            fmt.Sprintf(config.URLSimpleStorageService, s.DefaultBucket, s.Region, bFile.Filename),
+		URL:            fmt.Sprintf(config.URLWasabiCloudStorage, w.DefaultBucket, w.Region, bFile.Filename),
 	}, nil
 }
 
 // UploadMultiFile
-func (s *SimpleStorageService) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
+func (w *WasabiCloudStorage) UploadMultiFile(multiFace interface{}) ([]*types.UploadedFile, error) {
 
 	// assert that the multiFace is of type bifrost.File
 	multiFile, ok := multiFace.(types.MultiFile)
@@ -167,7 +184,7 @@ func (s *SimpleStorageService) UploadMultiFile(multiFace interface{}) ([]*types.
 		}
 	}
 
-	if !s.IsConnected() {
+	if !w.IsConnected() {
 		return nil, &errors.BifrostError{
 			Err:       fmt.Errorf("no active Google Cloud Storage client"),
 			ErrorCode: errors.ErrClientError,
@@ -176,7 +193,7 @@ func (s *SimpleStorageService) UploadMultiFile(multiFace interface{}) ([]*types.
 
 	uploadedFiles := make([]*types.UploadedFile, 0, len(multiFile.Files))
 
-	// @TODO: add concurrency when UseAsync is true
+	// TODO: add concurrency when UseAsync is true
 	for _, file := range multiFile.Files {
 		if multiFile.GlobalOptions != nil {
 			// merge global options with file options
@@ -188,9 +205,9 @@ func (s *SimpleStorageService) UploadMultiFile(multiFace interface{}) ([]*types.
 			}
 		}
 
-		uploadedFile, err := s.UploadFile(file)
+		uploadedFile, err := w.UploadFile(file)
 		if err != nil {
-			if s.EnableDebug {
+			if w.EnableDebug {
 				// log failed file and continue
 				log.Printf("Upload for file at path %s failed with err: %s\n", file.Path, err.Error())
 			}
@@ -203,35 +220,35 @@ func (s *SimpleStorageService) UploadMultiFile(multiFace interface{}) ([]*types.
 	return uploadedFiles, nil
 }
 
-// Config returns the s3 configuration.
-func (s *SimpleStorageService) Config() *types.BridgeConfig {
+// Config returns the wasabi configuration.
+func (w *WasabiCloudStorage) Config() *types.BridgeConfig {
 	return &types.BridgeConfig{
-		DefaultBucket:  s.DefaultBucket,
-		Region:         s.Region,
-		AccessKey:      s.AccessKey,
-		SecretKey:      s.SecretKey,
-		DefaultTimeout: s.DefaultTimeout,
-		EnableDebug:    s.EnableDebug,
-		Provider:       s.Provider,
-		UseAsync:       s.UseAsync,
+		DefaultBucket:  w.DefaultBucket,
+		Region:         w.Region,
+		AccessKey:      w.AccessKey,
+		SecretKey:      w.SecretKey,
+		DefaultTimeout: w.DefaultTimeout,
+		EnableDebug:    w.EnableDebug,
+		Provider:       w.Provider,
+		UseAsync:       w.UseAsync,
 	}
 }
 
 /*
-Disconnect closes the S3 connection and returns an error if one occurs.
+Disconnect closes the Wasabi connection and returns an error if one occurs.
 
 Disconnect should only be called when the connection is no longer needed.
 */
-func (s *SimpleStorageService) Disconnect() error {
-	if s.IsConnected() {
-		s.Client = nil
+func (w *WasabiCloudStorage) Disconnect() error {
+	if w.IsConnected() {
+		w.Client = nil
 	}
 	return nil
 }
 
-// IsConnected returns true if the S3 connection is open.
-func (s *SimpleStorageService) IsConnected() bool {
-	return s.Client != nil
+// IsConnected returns true if the Wasabi connection is open.
+func (w *WasabiCloudStorage) IsConnected() bool {
+	return w.Client != nil
 }
 
 /*
@@ -239,6 +256,6 @@ UploadFolder uploads a folder to the provider storage and returns an error if on
 
 Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (s *SimpleStorageService) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
+func (w *WasabiCloudStorage) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
 }
