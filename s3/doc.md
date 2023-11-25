@@ -1,30 +1,39 @@
 # How to use Bifrost with Amazon S3
+
 Welcome to the Bifrost documentation for Amazon S3! In this guide, we will show you how to use Bifrost to upload files to Amazon S3, one of the most popular cloud storage services out there.
 
 ## Overview
+
 Amazon S3 is a highly scalable, secure, and durable object storage service that is used by millions of customers worldwide. Bifrost provides a straightforward way to upload files to Amazon S3 without the need to write complex code.
 
 ## Prerequisites
+
 Before you can start using Bifrost to upload files to Amazon S3, you'll need to make sure you have the following:
+
 - An AWS account with S3 access
 - AWS Access Key ID and Secret Access Key
 - An S3 bucket to upload files to
 - Bifrost installed on your local machine
 
 ### Steps:
+
 #### Create an S3 bucket
+
 1. Login to your AWS account and navigate to the S3 console
 2. Click on the "Create bucket" button and follow the prompts to create a new bucket
-_Note the name of your bucket as you will need it later_
+   _Note the name of your bucket as you will need it later_
 
 #### Set up AWS credentials
+
 1. Create a new access key for your AWS account by navigating to the IAM console and selecting "Users" from the left-hand menu
 2. Select your user and click on the "Security credentials" tab
 3. Click on the "Create access key" button and note down the Access Key ID and Secret Access Key
 
 ## Mount a Bifrost bridge to your S3 account
-1. Install Bifrost using: ```go get github.com/bifrost-cloud/bifrost```
+
+1. Install Bifrost using: `go get github.com/bifrost-cloud/bifrost`
 2. Create a new Bifrost client and mount an S3 bridge using the following code:
+
 ```go
 package main
 
@@ -48,7 +57,8 @@ func main() {
 ```
 
 ## Upload files to S3 using Bifrost
-``` go
+
+```go
 	// Upload a file
 	uploadedFile, err := bridge.UploadFile(bifrost.File{
 		Path:     "../shared/image/aand.png",
@@ -67,11 +77,16 @@ func main() {
 }
 
 ```
+
 And that's it! You have now mounted a Bifrost bridge to your AWS S3 account and can start uploading files via this bridge.
 
 ## Shipping multiple files to Amazon S3 via the rainbow bridge
+
 ```go
 // Upload multiple files
+
+f, _ := os.Open("../shared/image/hair.jpg")
+
 uploadedFiles, err := bridge.UploadMultiFile(bifrost.MultiFile{
 	Files: []bifrost.File{
 		{
@@ -93,6 +108,18 @@ uploadedFiles, err := bridge.UploadMultiFile(bifrost.MultiFile{
 				},
 			},
 		},
+        {
+            Path:     "",
+            Handle:   f,
+            Filename: "sammy.jpg",
+            Options: map[string]interface{}{
+                bifrost.OptMetadata: map[string]string{
+                    "originalname": "hair.jpg",
+                    "specie":       "Human",
+                },
+                bifrost.OptACL: bifrost.ACLPublicRead,
+            },
+        },
 	},
 	GlobalOptions: map[string]interface{}{
 		bifrost.OptACL: bifrost.ACLPrivate,
@@ -107,10 +134,11 @@ for _, file := range uploadedFiles {
 	fmt.Printf("Uploaded file: %s to %s\n", file.Name, file.Preview)
 }
 ```
+
 ## Additional Resources
+
 - [Amazon S3 Documentation](https://docs.aws.amazon.com/s3/index.html)
 - [Setting up S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html)
 - [Setting up AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html)
 
 We hope you found this guide helpful in using Bifrost with Amazon S3. If you have any questions or feedback, please don't hesitate to open an [issue](https://github.com/opensaucerer/bifrost/issues)!
-
