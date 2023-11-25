@@ -83,3 +83,4 @@ jobs:
           WASABI_API_KEY: ${{ secrets.WASABI_API_KEY }}
           WASABI_SECRET_KEY: ${{ secrets.WASABI_SECRET_KEY }}
           WASABI_BUCKET_NAME: ${{ secrets.WASABI_BUCKET_NAME }}
+          WASABI_REGION: ${{ secrets.WASABI_REGION }}
