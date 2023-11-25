@@ -11,23 +11,23 @@ var (
 	bridge bifrost.RainbowBridge
 	err    error
 
-	API_KEY     = os.Getenv("API_KEY")
-	API_SECRET  = os.Getenv("API_SECRET")
-	BUCKET_NAME = os.Getenv("BUCKET_NAME")
-	REGION      = os.Getenv("REGION")
+	WASABI_API_KEY     = os.Getenv("WASABI_API_KEY")
+	WASABI_API_SECRET  = os.Getenv("WASABI_API_SECRET")
+	WASABI_BUCKET_NAME = os.Getenv("WASABI_BUCKET_NAME")
+	WASABI_REGION      = os.Getenv("WASABI_REGION")
 )
 
 func setup(t *testing.T) {
 
 	bridge, err = bifrost.NewRainbowBridge(&bifrost.BridgeConfig{
-		DefaultBucket:  BUCKET_NAME,
+		DefaultBucket:  WASABI_BUCKET_NAME,
 		DefaultTimeout: 10,
 		Provider:       bifrost.WasabiCloudStorage,
 		EnableDebug:    true,
 		PublicRead:     true,
-		AccessKey:      API_KEY,
-		SecretKey:      API_SECRET,
-		Region:         REGION,
+		AccessKey:      WASABI_API_KEY,
+		SecretKey:      WASABI_API_SECRET,
+		Region:         WASABI_REGION,
 	})
 	if err != nil {
 		t.Error(err.(bifrost.Error).Code(), err)

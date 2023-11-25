@@ -80,3 +80,6 @@ jobs:
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
           CREDENTIALS_FILE_PATH: ${{ secrets.CREDENTIALS_FILE_PATH }}
           PINATA_JWT: ${{ secrets.PINATA_JWT }}
+          WASABI_API_KEY: ${{ secrets.WASABI_API_KEY }}
+          WASABI_SECRET_KEY: ${{ secrets.WASABI_SECRET_KEY }}
+          WASABI_BUCKET_NAME: ${{ secrets.WASABI_BUCKET_NAME }}
