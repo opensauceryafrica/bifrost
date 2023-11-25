@@ -242,20 +242,20 @@ go get github.com/opensaucerer/bifrost
 
 If you want to learn more about how Bifrost is creating different methods to make it easier to use different cloud providers, you can follow these links:
 
-- [Google Cloud Storage (GCS)](gcs\doc.md)
-- [Amazon S3](s3\doc.md)
-- [Pinata Cloud](pinata\doc.md)
+- [Google Cloud Storage (GCS)](gcs/doc.md)
+- [Amazon S3](s3/doc.md)
+- [Pinata Cloud](pinata/doc.md)
 
 # Variants
 
 Bifrost also exists in other forms and languages and you are free to start a new variant of bifrost in any other form or language of your choice. For now, below are the know variants of bifrost.
 
 - [x] [Bifrost CLI](https://github.com/showbaba/bifrost-cli)
-- [x] [Bifrost in Python](https://github.com/opensaucerer/pyfrost)
+- [x] [Bifrost in Python](https://github.com/ifihan/byfrost)
 
 # Contributing
 
-Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide](./contributing.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes to Bifrost.
+Bifrost is an open source project and we welcome contributions of all kinds. Please read our [contributing guide](./contributing.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes to Bifrost.
 
 # License
 
