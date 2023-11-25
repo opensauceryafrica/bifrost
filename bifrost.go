@@ -211,8 +211,6 @@ func newSimpleStorageService(bc *BridgeConfig) (RainbowBridge, error) {
 // newWasabiCloudStorage returns a new client for Wasabi Cloud Storage
 func newWasabiCloudStorage(bc *BridgeConfig) (RainbowBridge, error) {
 
-	log.Println(bc)
-
 	// Wasabi is an S3-compatible service, so we can use the same client
 	var client *s3v1.S3
 	if bc.AccessKey != "" && bc.SecretKey != "" {
