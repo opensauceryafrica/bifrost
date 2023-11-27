@@ -87,10 +87,10 @@ func (s *SimpleStorageService) UploadFile(fileFace interface{}) (*types.Uploaded
 		Key:    aws.String(bFile.Filename),
 		Body:   bFile.Handle,
 	}
-	// check the bridge config for default acl settings
-	if s.PublicRead {
+	// if no ACL is set, check if w.PublicRead is true
+	if bFile.Options[config.OptACL] == nil && s.PublicRead {
 		// set public read permissions
-		params.ACL = awsTypes.ObjectCannedACLPublicRead
+		bFile.Options[config.OptACL] = config.ACLPublicRead
 	}
 	// configure upload options
 	for k, v := range bFile.Options {

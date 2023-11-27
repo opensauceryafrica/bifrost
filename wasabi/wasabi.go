@@ -109,6 +109,13 @@ func (w *WasabiCloudStorage) UploadFile(fileFace interface{}) (*types.UploadedFi
 		// set public read permissions
 		params.ACL = aws.String(s3.ObjectCannedACLPublicRead)
 	}
+
+	// if no ACL is set, check if w.PublicRead is true
+	if bFile.Options[config.OptACL] == nil && w.PublicRead {
+		// set public read permissions
+		bFile.Options[config.OptACL] = config.ACLPublicRead
+	}
+
 	// configure upload options
 	for k, v := range bFile.Options {
 		switch k {

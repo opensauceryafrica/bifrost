@@ -99,6 +99,12 @@ func (g *GoogleCloudStorage) UploadFile(fileFace interface{}) (*types.UploadedFi
 		}
 	}
 
+	// if no ACL is set, check if w.PublicRead is true
+	if bFile.Options[config.OptACL] == nil && g.PublicRead {
+		// set public read permissions
+		bFile.Options[config.OptACL] = config.ACLPublicRead
+	}
+
 	// configure upload options
 	for k, v := range bFile.Options {
 		switch k {
