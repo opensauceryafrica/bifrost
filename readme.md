@@ -245,6 +245,7 @@ If you want to learn more about how Bifrost is creating different methods to mak
 - [Google Cloud Storage (GCS)](gcs/doc.md)
 - [Amazon S3](s3/doc.md)
 - [Pinata Cloud](pinata/doc.md)
+- [Wasabi Cloud](wasabi/doc.md)
 
 # Variants
 
