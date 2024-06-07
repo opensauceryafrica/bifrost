@@ -32,4 +32,8 @@ type BridgeConfig struct {
 	UseAsync bool
 	// PinataJWT is the JWT generated for your Pinata cloud account
 	PinataJWT string
+	// Buckets specifics the list of bucket names to interact with
+	Buckets []string
+	// Object specifics an object name in a bucket to interact with
+	Object string
 }
