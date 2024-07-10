@@ -167,6 +167,8 @@ func newGoogleCloudStorage(bc *BridgeConfig) (RainbowBridge, error) {
 		EnableDebug:     bc.EnableDebug,
 		PublicRead:      bc.PublicRead,
 		UseAsync:        bc.UseAsync,
+		Object:          bc.Object,
+		Buckets:         bc.Buckets,
 	}, nil
 }
 
@@ -270,43 +272,4 @@ func newWasabiCloudStorage(bc *BridgeConfig) (RainbowBridge, error) {
 		EnableDebug:    bc.EnableDebug,
 		UseAsync:       bc.UseAsync,
 	}, nil
-}
-
-// DeleteGCSobject deletes an object from one or more buckets
-func DeleteGCSobject(bc *BridgeConfig) error {
-
-	var client *storage.Client
-	var err error
-	if bc.CredentialsFile != "" {
-		// first attempt to authenticate with credentials file
-		client, err = storage.NewClient(context.Background(), option.WithCredentialsFile(bc.CredentialsFile))
-		if err != nil {
-			return &errors.BifrostError{
-				Err:       err,
-				ErrorCode: errors.ErrUnauthorized,
-			}
-		}
-	} else {
-		// if no credentials file is specified, attempt to authenticate without credentials file
-		client, err = storage.NewClient(context.Background())
-		if err != nil {
-			return &errors.BifrostError{
-				Err:       err,
-				ErrorCode: errors.ErrUnauthorized,
-			}
-		}
-	}
-
-	for _, bucketName := range bc.Buckets {
-		bucket := client.Bucket(bucketName)
-		obj := bucket.Object(bc.Object)
-
-		if err := obj.Delete(context.Background()); err != nil {
-			return &errors.BifrostError{
-				Err:       err,
-				ErrorCode: errors.ErrUnauthorized,
-			}
-		}
-	}
-	return nil
 }

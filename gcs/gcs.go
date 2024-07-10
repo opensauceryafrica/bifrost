@@ -266,3 +266,24 @@ Note: for some providers, UploadFolder requires that a default bucket be set in 
 func (g *GoogleCloudStorage) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
 }
+
+/*
+DeleteObject deletes an object from an array of buckets in the provider's storage and returns an error if one occurs.
+
+Note: DeleteObject requires that an object and an array of buckets to be set in bifrost.BridgeConfig.
+*/
+func (g *GoogleCloudStorage) DeleteObject() error {
+
+	for _, bucketName := range g.Buckets {
+		bucket := g.Client.Bucket(bucketName)
+		obj := bucket.Object(g.Object)
+
+		if err := obj.Delete(context.Background()); err != nil {
+			return &errors.BifrostError{
+				Err:       err,
+				ErrorCode: errors.ErrUnauthorized,
+			}
+		}
+	}
+	return nil
+}

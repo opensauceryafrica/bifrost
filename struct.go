@@ -45,6 +45,12 @@ type RainbowBridge interface {
 		Note: for some providers, UploadFolder requires that a default bucket be set in bifrost.BridgeConfig.
 	*/
 	UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error)
+	/*
+		DeleteObject deletes an object from an array of buckets in the provider's storage and returns an error if one occurs.
+
+		Note: DeleteObject requires that an object and an array of buckets to be set in bifrost.BridgeConfig.
+	*/
+	DeleteObject() error
 }
 
 // BifrostError is the interface for errors returned by Bifrost.

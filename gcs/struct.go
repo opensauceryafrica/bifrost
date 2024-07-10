@@ -25,4 +25,8 @@ type GoogleCloudStorage struct {
 	PublicRead bool
 	// UseAsync enables asynchronous operations with go routines.
 	UseAsync bool
+	// Buckets specifics the list of bucket names to interact with
+	Buckets []string
+	// Object specifics an object name in a bucket to interact with
+	Object string
 }

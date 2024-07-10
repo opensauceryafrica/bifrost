@@ -279,3 +279,12 @@ func (p *PinataCloud) UploadMultiFile(multiFace interface{}) ([]*types.UploadedF
 
 	return uploadedFiles, nil
 }
+
+/*
+DeleteObject deletes an object from an array of buckets in the provider's storage and returns an error if one occurs.
+
+Note: DeleteObject requires that an object and an array of buckets to be set in bifrost.BridgeConfig.
+*/
+func (p *PinataCloud) DeleteObject() error {
+	return nil
+}
