@@ -268,10 +268,10 @@ func (w *WasabiCloudStorage) UploadFolder(foldFace interface{}) ([]*types.Upload
 }
 
 /*
-DeleteObject deletes an object from an array of buckets in the provider's storage and returns an error if one occurs.
+DeleteFile deletes a file from a bucket on Google Cloud Storage and returns an error if one occurs.
 
-Note: DeleteObject requires that an object and an array of buckets to be set in bifrost.BridgeConfig.
+Note: DeleteFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (w *WasabiCloudStorage) DeleteObject() error {
+func (w *WasabiCloudStorage) DeleteFile(fileFace interface{}) error {
 	return nil
 }

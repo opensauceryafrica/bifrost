@@ -268,17 +268,50 @@ func (g *GoogleCloudStorage) UploadFolder(foldFace interface{}) ([]*types.Upload
 }
 
 /*
-DeleteObject deletes an object from an array of buckets in the provider's storage and returns an error if one occurs.
+DeleteFile deletes a file from a bucket on Google Cloud Storage and returns an error if one occurs.
 
-Note: DeleteObject requires that an object and an array of buckets to be set in bifrost.BridgeConfig.
+Note: DeleteFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
-func (g *GoogleCloudStorage) DeleteObject() error {
+func (g *GoogleCloudStorage) DeleteFile(fileFace interface{}) error {
 
-	for _, bucketName := range g.Buckets {
-		bucket := g.Client.Bucket(bucketName)
-		obj := bucket.Object(g.Object)
+	// assert that the fileFace is of type bifrost.File
+	bFile, ok := fileFace.(types.File)
+	if !ok {
+		return &errors.BifrostError{
+			Err:       fmt.Errorf("argument must be of type bifrost.File"),
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
 
-		if err := obj.Delete(context.Background()); err != nil {
+	// validate struct
+	if err := bFile.Validate(); err != nil {
+		return &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrInvalidParameters,
+		}
+	}
+
+	if !g.IsConnected() {
+		return &errors.BifrostError{
+			Err:       fmt.Errorf("no active Google Cloud Storage client"),
+			ErrorCode: errors.ErrClientError,
+		}
+	}
+
+	// create context and add timeout if default timeout is set
+	var ctx context.Context
+	var cancel context.CancelFunc
+	ctx = context.Background()
+	if g.DefaultTimeout > 0 {
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(g.DefaultTimeout)*time.Second)
+		defer cancel()
+	}
+
+	if bFile.Filename != "" {
+
+		obj := g.Client.Bucket(g.DefaultBucket).Object(bFile.Filename)
+
+		if err := obj.Delete(ctx); err != nil {
 			return &errors.BifrostError{
 				Err:       err,
 				ErrorCode: errors.ErrUnauthorized,

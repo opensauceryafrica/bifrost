@@ -46,11 +46,11 @@ type RainbowBridge interface {
 	*/
 	UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error)
 	/*
-		DeleteObject deletes an object from an array of buckets in the provider's storage and returns an error if one occurs.
+		DeleteFile deletes a file from a bucket on Google Cloud Storage and returns an error if one occurs.
 
-		Note: DeleteObject requires that an object and an array of buckets to be set in bifrost.BridgeConfig.
+		Note: DeleteFile requires that a default bucket be set in bifrost.BridgeConfig.
 	*/
-	DeleteObject() error
+	DeleteFile(fileFace interface{}) error
 }
 
 // BifrostError is the interface for errors returned by Bifrost.

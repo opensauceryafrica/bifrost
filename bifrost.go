@@ -167,8 +167,6 @@ func newGoogleCloudStorage(bc *BridgeConfig) (RainbowBridge, error) {
 		EnableDebug:     bc.EnableDebug,
 		PublicRead:      bc.PublicRead,
 		UseAsync:        bc.UseAsync,
-		Object:          bc.Object,
-		Buckets:         bc.Buckets,
 	}, nil
 }
 
