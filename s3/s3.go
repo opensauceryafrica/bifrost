@@ -244,7 +244,7 @@ func (s *SimpleStorageService) UploadFolder(foldFace interface{}) ([]*types.Uplo
 }
 
 /*
-DeleteFile deletes a file from a bucket on Google Cloud Storage and returns an error if one occurs.
+DeleteFile deletes a fileS3 and returns an error if one occurs.
 
 Note: DeleteFile requires that a default bucket be set in bifrost.BridgeConfig.
 */
