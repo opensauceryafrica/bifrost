@@ -109,3 +109,15 @@ func (f *File) Validate() error {
 	}
 	return nil
 }
+
+// DeleeFile is the struct for Deleting a single file.
+type DeleteFile struct {
+	// Handle is the handle to the file.
+	Handle io.Reader
+	// Filename is the name stored with the provider.
+	Filename string `json:"filename"`
+	// Buckets is the name stored with the provider.
+	Buckets []string `json:"buckets"`
+	// Options is a map of options to store along with each file.
+	Options map[string]interface{} `json:"options"`
+}

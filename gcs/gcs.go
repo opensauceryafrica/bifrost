@@ -266,3 +266,57 @@ Note: for some providers, UploadFolder requires that a default bucket be set in 
 func (g *GoogleCloudStorage) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
 }
+
+/*
+DeleteFile deletes a file from Google Cloud Storage and returns an error if one occurs.
+
+Note: DeleteFile requires that a default bucket be set in bifrost.BridgeConfig.
+*/
+func (g *GoogleCloudStorage) DeleteFile(fileFace interface{}) error {
+
+	// assert that the fileFace is of type bifrost.File
+	bFile, ok := fileFace.(types.File)
+	if !ok {
+		return &errors.BifrostError{
+			Err:       fmt.Errorf("argument must be of type bifrost.File"),
+			ErrorCode: errors.ErrBadRequest,
+		}
+	}
+
+	// validate struct
+	if err := bFile.Validate(); err != nil {
+		return &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrInvalidParameters,
+		}
+	}
+
+	if !g.IsConnected() {
+		return &errors.BifrostError{
+			Err:       fmt.Errorf("no active Google Cloud Storage client"),
+			ErrorCode: errors.ErrClientError,
+		}
+	}
+
+	// create context and add timeout if default timeout is set
+	var ctx context.Context
+	var cancel context.CancelFunc
+	ctx = context.Background()
+	if g.DefaultTimeout > 0 {
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(g.DefaultTimeout)*time.Second)
+		defer cancel()
+	}
+
+	if bFile.Filename != "" {
+
+		obj := g.Client.Bucket(g.DefaultBucket).Object(bFile.Filename)
+
+		if err := obj.Delete(ctx); err != nil {
+			return &errors.BifrostError{
+				Err:       err,
+				ErrorCode: errors.ErrUnauthorized,
+			}
+		}
+	}
+	return nil
+}

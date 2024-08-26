@@ -3,3 +3,4 @@ cmd/
 .env.*
 coverage.*
 .vscode
+.DS_Store

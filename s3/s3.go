@@ -242,3 +242,12 @@ Note: for some providers, UploadFolder requires that a default bucket be set in 
 func (s *SimpleStorageService) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
 }
+
+/*
+DeleteFile deletes a file from S3 and returns an error if one occurs.
+
+Note: DeleteFile requires that a default bucket be set in bifrost.BridgeConfig.
+*/
+func (s *SimpleStorageService) DeleteFile(fileFace interface{}) error {
+	return nil
+}

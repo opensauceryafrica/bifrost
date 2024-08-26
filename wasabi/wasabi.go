@@ -266,3 +266,12 @@ Note: for some providers, UploadFolder requires that a default bucket be set in 
 func (w *WasabiCloudStorage) UploadFolder(foldFace interface{}) ([]*types.UploadedFile, error) {
 	return nil, nil
 }
+
+/*
+DeleteFile deletes a file from Wasabi and returns an error if one occurs.
+
+Note: DeleteFile requires that a default bucket be set in bifrost.BridgeConfig.
+*/
+func (w *WasabiCloudStorage) DeleteFile(fileFace interface{}) error {
+	return nil
+}
