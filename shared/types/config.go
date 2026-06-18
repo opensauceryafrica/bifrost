@@ -36,4 +36,7 @@ type BridgeConfig struct {
 	Buckets []string
 	// Object specifics an object name in a bucket to interact with
 	Object string
+	// Endpoint overrides the default service endpoint for S3-compatible providers,
+	// e.g. Cloudflare R2: https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+	Endpoint string
 }
