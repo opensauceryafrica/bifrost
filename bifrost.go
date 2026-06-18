@@ -31,6 +31,7 @@ import (
 	credv1 "github.com/aws/aws-sdk-go/aws/credentials"
 	sessv1 "github.com/aws/aws-sdk-go/aws/session"
 	s3v1 "github.com/aws/aws-sdk-go/service/s3"
+	awsv2 import "github.com/aws/aws-sdk-go-v2/aws" 
 )
 
 // NewRainbowBridge returns a new Rainbow Bridge for shipping files to your specified cloud storage service.
@@ -170,30 +171,54 @@ func newGoogleCloudStorage(bc *BridgeConfig) (RainbowBridge, error) {
 	}, nil
 }
 
-// newSimpleStorageService returns a new client for AWS S3
+// newSimpleStorageService returns a new client for AWS S3, or any S3-compatible
+// provider (e.g. Cloudflare R2) when bc.Endpoint is set.
 func newSimpleStorageService(bc *BridgeConfig) (RainbowBridge, error) {
-	var client *awss3.Client
-	if bc.AccessKey != "" && bc.SecretKey != "" {
-		creds := credentials.NewStaticCredentialsProvider(bc.AccessKey, bc.SecretKey, "")
-		cfg, err := awsconfig.LoadDefaultConfig(context.Background(), awsconfig.WithCredentialsProvider(creds), awsconfig.WithRegion(bc.Region))
-		if err != nil {
-			return nil, &errors.BifrostError{
-				Err:       err,
-				ErrorCode: errors.ErrUnauthorized,
-			}
-		}
-		client = awss3.NewFromConfig(cfg)
-	} else {
-		// Load AWS Shared Configuration
-		cfg, err := awsconfig.LoadDefaultConfig(context.TODO())
-		if err != nil {
-			return nil, &errors.BifrostError{
-				Err:       err,
-				ErrorCode: errors.ErrUnauthorized,
-			}
-		}
-		client = awss3.NewFromConfig(cfg)
+	// Build the load options shared by the static-credentials and shared-config paths.
+	loadOptions := []func(*awsconfig.LoadOptions) error{}
+
+	if bc.Region != "" {
+		loadOptions = append(loadOptions, awsconfig.WithRegion(bc.Region))
 	}
+
+	if bc.AccessKey != "" && bc.SecretKey != "" {
+		loadOptions = append(loadOptions, awsconfig.WithCredentialsProvider(
+			credentials.NewStaticCredentialsProvider(bc.AccessKey, bc.SecretKey, ""),
+		))
+	}
+	// otherwise fall back to the default credential chain (shared config / env / IAM role)
+
+	// A custom endpoint (e.g. Cloudflare R2: https://<ACCOUNT_ID>.r2.cloudflarestorage.com)
+	// points the S3 client at an S3-compatible service instead of AWS. HostnameImmutable
+	// keeps the host exactly as given so the SDK doesn't rewrite it to an AWS endpoint.
+	if bc.Endpoint != "" {
+		loadOptions = append(loadOptions, awsconfig.WithEndpointResolverWithOptions(
+			awsv2.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (awsv2.Endpoint, error) {
+				return awsv2.Endpoint{
+					URL:               bc.Endpoint,
+					HostnameImmutable: true,
+					SigningRegion:     region,
+				}, nil
+			}),
+		))
+	}
+
+	cfg, err := awsconfig.LoadDefaultConfig(context.Background(), loadOptions...)
+	if err != nil {
+		return nil, &errors.BifrostError{
+			Err:       err,
+			ErrorCode: errors.ErrUnauthorized,
+		}
+	}
+
+	client := awss3.NewFromConfig(cfg, func(o *awss3.Options) {
+		// S3-compatible providers behind a custom endpoint (R2, MinIO, etc.) expect
+		// path-style addressing (endpoint/bucket/key).
+		if bc.Endpoint != "" {
+			o.UsePathStyle = true
+		}
+	})
+
 	return &bs3.SimpleStorageService{
 		Provider:       providers[bc.Provider],
 		DefaultBucket:  bc.DefaultBucket,
