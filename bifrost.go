@@ -31,7 +31,7 @@ import (
 	credv1 "github.com/aws/aws-sdk-go/aws/credentials"
 	sessv1 "github.com/aws/aws-sdk-go/aws/session"
 	s3v1 "github.com/aws/aws-sdk-go/service/s3"
-	awsv2 import "github.com/aws/aws-sdk-go-v2/aws" 
+	awsv2 "github.com/aws/aws-sdk-go-v2/aws" 
 )
 
 // NewRainbowBridge returns a new Rainbow Bridge for shipping files to your specified cloud storage service.
